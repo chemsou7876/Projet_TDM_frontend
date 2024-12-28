@@ -46,7 +46,7 @@ fun OnboardingScreen(navController: NavController) {
 //                    navController.navigate("login")
 //                }
                 navController.navigate("login")
-
+                println("navigate to login")
             },
             modifier = Modifier
                 .padding(16.dp)
