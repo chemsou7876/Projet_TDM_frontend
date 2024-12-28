@@ -1,56 +1,104 @@
 package com.example.projet_tdm.screens.home
 
-
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
-import com.example.projet_tdm.R
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    //  val images = listOf(R.drawable.onboarding1, R.drawable.onboarding2, R.drawable.onboarding3)
-    //  val pagerState = rememberPagerState(pageCount = { images.size })
+    var selectedTab by remember { mutableStateOf(0) }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-//        HorizontalPager(
-//            state = pagerState,
-//            modifier = Modifier
-//                .weight(1f)
-//                .fillMaxWidth()
-//        ) { page ->
-//            Image(
-//                painter = painterResource(id = images[page]),
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize(),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-//
-//        Button(
-//            onClick = {
-//                if (pagerState.currentPage < images.size - 1) {
-//                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
-//                } else {
-//                    navController.navigate("login")
-//                }
-//            },
-//            modifier = Modifier
-//                .padding(16.dp)
-//                .fillMaxWidth()
-//        ) {
-//            Text(if (pagerState.currentPage < images.size - 1) "Next" else "Get Started")
-//        }
-        Text("this is home page ")
+    Scaffold(
+        bottomBar = {
+            BottomNavigation {
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+                    label = { Text("Home") },
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
+                    label = { Text("Search") },
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.LocationOn, contentDescription = "Track") },
+                    label = { Text("Track") },
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") },
+                    label = { Text("Notifications") },
+                    selected = selectedTab == 3,
+                    onClick = { selectedTab = 3 }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
+                    label = { Text("Profile") },
+                    selected = selectedTab == 4,
+                    onClick = { selectedTab = 4 }
+                )
+            }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (selectedTab) {
+                0 -> HomeContent()
+                1 -> SearchContent()
+                2 -> TrackContent()
+                3 -> NotificationsContent()
+                4 -> ProfileContent()
+            }
+        }
+    }
+}
+
+// Create separate composables for each tab content
+@Composable
+fun HomeContent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Home tab content
+        Text("Home Content")
+    }
+}
+
+@Composable
+fun SearchContent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Search tab content
+        Text("Search Content")
+    }
+}
+
+@Composable
+fun TrackContent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Track tab content
+        Text("Track Content")
+    }
+}
+
+@Composable
+fun NotificationsContent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Notifications tab content
+        Text("Notifications Content")
+    }
+}
+
+@Composable
+fun ProfileContent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Profile tab content
+        Text("Profile Content")
     }
 }
