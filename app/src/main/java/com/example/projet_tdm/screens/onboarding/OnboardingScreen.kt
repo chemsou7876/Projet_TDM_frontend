@@ -43,6 +43,7 @@ fun OnboardingScreen(navController: NavController) {
     val pagerState = rememberPagerState(pageCount = { images.size })
     val scope = rememberCoroutineScope()
 
+
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
@@ -138,6 +139,7 @@ fun OnboardingScreen(navController: NavController) {
                     }
                 }
             }
+
         }
     }
 }
