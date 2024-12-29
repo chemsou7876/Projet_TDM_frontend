@@ -1,6 +1,5 @@
 package com.example.projet_tdm.components
 
-// app/src/main/java/com/yourpackage/components/CommonComponents.kt
 
 
 import androidx.compose.foundation.border
