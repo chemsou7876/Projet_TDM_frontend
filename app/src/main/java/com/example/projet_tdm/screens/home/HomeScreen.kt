@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.projet_tdm.screens.profile.ProfilePage
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -99,6 +100,6 @@ fun NotificationsContent() {
 fun ProfileContent() {
     Column(modifier = Modifier.fillMaxSize()) {
         // Profile tab content
-        Text("Profile Content")
+        ProfilePage()
     }
 }
