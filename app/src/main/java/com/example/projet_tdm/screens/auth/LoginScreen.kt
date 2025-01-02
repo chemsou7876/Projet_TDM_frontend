@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -29,12 +30,13 @@ fun LoginScreen(navController: NavController) {
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
 
-    val orangeColor = Color(0xFFFF7622)
+    val orangebg = Color(0xFFFF7622)
+    val orangeColor = Color(0x86FF7622)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(orangeColor),
+            .background(orangebg),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header Container with transparent background
@@ -44,16 +46,21 @@ fun LoginScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Text(
                 text = "Log In",
-                fontSize = 24.sp,
+                fontSize = 30.sp,
+                fontFamily = Sen,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                modifier = Modifier.padding(top = 100.dp)
             )
 
             Text(
                 text = "Please sign in to your existing account",
                 fontSize = 14.sp,
+                fontFamily = Sen,
+                fontWeight = FontWeight.W400,
                 color = Color.White,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -72,53 +79,67 @@ fun LoginScreen(navController: NavController) {
             // Email Field
             Text(
                 text = "EMAIL",
+                fontFamily = Sen,
+                fontWeight = FontWeight.W400,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                color = Color.Gray,
+                color = Color(0xFF32343E),
                 fontSize = 12.sp
             )
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("example@gmail.com", color = Color.LightGray) },
+                placeholder = {
+                    Text("Please enter your Email", color = Color(0xFFA0A5BA),fontWeight = FontWeight.W400, fontFamily = Sen,
+                ) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 16.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(Color(0xFFF0F5FA)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = orangeColor,
-                    unfocusedBorderColor = Color.LightGray
+                    unfocusedBorderColor = Color(0x00F0F5FA),
                 )
             )
 
             // Password Field
             Text(
                 text = "PASSWORD",
+                fontWeight = FontWeight.W400,
+                fontFamily = Sen,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                color = Color.Gray,
+                color = Color(0xFF32343E),
                 fontSize = 12.sp
             )
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                placeholder = {
+                    Text("* * * * * * * * * ", color = Color(0xFFA0A5BA),fontWeight = FontWeight.W400, fontFamily = Sen,
+                    ) },                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility"
+                            contentDescription = "Toggle password visibility",
+                            tint = Color(0xFFA0A5BA) // Optional: Set icon color
+
                         )
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(Color(0xFFF0F5FA)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = orangeColor,
-                    unfocusedBorderColor = Color.LightGray
-                )
+                    unfocusedBorderColor = Color(0x00F0F5FA),
+
+                    )
             )
 
             // Remember me and Forgot Password row
@@ -135,16 +156,21 @@ fun LoginScreen(navController: NavController) {
                     Checkbox(
                         checked = rememberMe,
                         onCheckedChange = { rememberMe = it },
-                        colors = CheckboxDefaults.colors(checkedColor = orangeColor)
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Color(0xFFFFA500), // Orange color
+                            uncheckedColor = Color(0xFFE3EBF2)
+                        )
                     )
-                    Text("Remember me", fontSize = 14.sp)
+                    Text("Remember me", fontSize = 14.sp, color = Color(0xFF7E8A97), fontWeight = FontWeight.W400,fontFamily = Sen)
                 }
 
                 TextButton(onClick = { navController.navigate("forgot_password") }) {
                     Text(
                         "Forgot Password",
-                        color = orangeColor,
-                        fontSize = 14.sp
+                        color = orangebg,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.W400,
+                        fontFamily =  Sen,
                     )
                 }
             }
@@ -154,11 +180,11 @@ fun LoginScreen(navController: NavController) {
                 onClick = { /* Login Logic */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = orangeColor),
-                shape = RoundedCornerShape(8.dp)
+                    .height(62.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = orangebg),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("LOG IN", color = Color.White)
+                Text("LOG IN", color = Color.White, fontWeight = FontWeight.Bold, fontFamily = Sen)
             }
 
             // Sign up text and link
@@ -166,14 +192,17 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Don't have an account? ")
+                Text("Don't have an account? ",fontSize = 16.sp, color = Color(0xFF646982), fontWeight = FontWeight.W400,fontFamily = Sen)
                 TextButton(onClick = { navController.navigate("signup") }) {
                     Text(
                         "SIGN UP",
                         color = orangeColor,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Sen,
+                        fontSize = 16.sp
                     )
                 }
             }
@@ -181,7 +210,10 @@ fun LoginScreen(navController: NavController) {
             Text(
                 "Or",
                 color = Color.Gray,
-                modifier = Modifier.padding(vertical = 16.dp)
+                modifier = Modifier.padding(vertical = 16.dp),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.W400,
+                fontFamily = Sen
             )
 
             // Social login buttons

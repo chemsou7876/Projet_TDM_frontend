@@ -19,10 +19,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun UploadProfileScreen(navController: NavController) {
@@ -63,21 +65,24 @@ fun UploadProfileScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Upload Profile",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = "Sign Up",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.W800,
+                color = Color.White,
+                fontFamily = Sen,
             )
 
             Text(
-                text = "Add a profile picture to your account",
+                text = "Please sign up to get started",
                 fontSize = 14.sp,
                 color = Color.White,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
+                fontFamily = Sen,
+                fontWeight = FontWeight.W400
             )
         }
 
@@ -92,7 +97,14 @@ fun UploadProfileScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-
+            Text(
+                text = "Let's put a face to your name!",
+                fontSize = 18.sp,
+                color = Color(0xFF363946),
+                modifier = Modifier.padding(top = 8.dp , bottom = 50.dp),
+                fontWeight = FontWeight.Bold,
+                fontFamily = Sen,
+            )
             // Profile Picture Upload Box
             Box(
                 modifier = Modifier
@@ -130,6 +142,16 @@ fun UploadProfileScreen(navController: NavController) {
                 }
             }
 
+            Text(
+                    text = "Upload your photo or skip this step by clicking 'Sign Up'",
+            fontSize = 18.sp,
+            color = Color(0xFF646982),
+                textAlign = TextAlign.Center, // Ensure each line of text is center-aligned
+
+            modifier = Modifier.padding(top = 25.dp ),
+                fontWeight = FontWeight.W400,
+                fontFamily = Sen,
+            )
             Spacer(modifier = Modifier.weight(1f))
 
             // Next Button
@@ -137,14 +159,15 @@ fun UploadProfileScreen(navController: NavController) {
                 onClick = { navController.navigate("location") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(62.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = orangeColor),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    "NEXT",
+                    "SIGN UP",
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.W800,
+                    fontFamily = Sen
                 )
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun ForgotPasswordScreen(navController: NavController) {
@@ -49,21 +50,24 @@ fun ForgotPasswordScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Forgot Password",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                fontSize = 30.sp,
+                color = Color.White,
+                fontFamily = Sen,
+                fontWeight = FontWeight.W800
             )
 
             Text(
-                text = "Enter your email to reset your password",
+                text = "Please sign in to your exisiting account",
                 fontSize = 14.sp,
                 color = Color.White,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
+                fontFamily = Sen,
+                    fontWeight = FontWeight.W400
             )
         }
 
@@ -77,7 +81,7 @@ fun ForgotPasswordScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Email Field
             Text(
@@ -85,38 +89,44 @@ fun ForgotPasswordScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                color = Color.Gray,
-                fontSize = 12.sp
+                color = Color(0xFF32343E),
+                fontSize = 12.sp,
+                fontFamily = Sen,
+                fontWeight = FontWeight.W400
             )
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("example@gmail.com", color = Color.LightGray) },
+                placeholder = {
+                    Text("Please enter your Email", color = Color(0xFFA0A5BA),fontWeight = FontWeight.W400, fontFamily = Sen,
+                    ) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 16.dp)
+                        .clip(shape = RoundedCornerShape(10.dp))
+                    .background(Color(0xFFF0F5FA)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = orangeColor,
-                    unfocusedBorderColor = Color.LightGray
-                ),
-                singleLine = true
+                    unfocusedBorderColor = Color(0x00F0F5FA),
+                )
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(30.dp))
 
             // Send Button
             Button(
                 onClick = { navController.navigate("otp") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(62.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = orangeColor),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     "SEND CODE",
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.W800,
+                    fontFamily = Sen,
                 )
             }
         }

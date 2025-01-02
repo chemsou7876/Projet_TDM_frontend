@@ -2,6 +2,7 @@ package com.example.projet_tdm.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -11,19 +12,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.projet_tdm.ui.theme.Sen
+import kotlinx.coroutines.delay
 
 @Composable
 fun OtpScreen(navController: NavController) {
     var otpValues by remember { mutableStateOf(List(4) { "" }) }
+    var timeLeft by remember { mutableStateOf(50) }
+    var isResendEnabled by remember { mutableStateOf(false) }
     val orangeColor = Color(0xFFFF7622)
+
+    // Timer effect
+    LaunchedEffect(key1 = Unit) {
+        while (timeLeft > 0) {
+            delay(1000L)
+            timeLeft--
+        }
+        isResendEnabled = true
+    }
+
+    // Focus requesters for OTP fields
+    val focusRequesters = remember {
+        List(4) { FocusRequester() }
+    }
 
     Column(
         modifier = Modifier
@@ -31,7 +53,7 @@ fun OtpScreen(navController: NavController) {
             .background(orangeColor),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Back button and header
+        // Back button and header sections remain the same...
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,29 +71,30 @@ fun OtpScreen(navController: NavController) {
             }
         }
 
-        // Header text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "OTP Verification",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = "Verification",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.W800,
+                color = Color.White,
+                fontFamily = Sen,
             )
 
             Text(
-                text = "Enter the verification code we sent to you",
+                text = "We have sent a code to your email",
                 fontSize = 14.sp,
                 color = Color.White,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
+                fontWeight = FontWeight.W400,
+                fontFamily = Sen
             )
         }
 
-        // White Container for the rest of the content
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,12 +104,55 @@ fun OtpScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "CODE",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W400,
+                    fontFamily = Sen,
+                    color = Color(0xFF32343E)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = {
+                            if (isResendEnabled) {
+                                timeLeft = 50
+                                isResendEnabled = false
+                                // Add your resend logic here
+                            }
+                        },
+                        enabled = isResendEnabled
+                    ) {
+                        Text(
+                            "Resend",
+                            color = if (isResendEnabled) Color(0xFF32343E) else Color.Gray,
+                            fontWeight = if (isResendEnabled) FontWeight.ExtraBold else FontWeight.Normal,
+                            style = TextStyle(
+                                textDecoration = if (isResendEnabled) TextDecoration.Underline else TextDecoration.None
+                            )
+                        )
+                    }
+                    Text(
+                        "in ${timeLeft}s",
+                        color = Color(0xFF32343E),
+                        fontWeight = FontWeight.W400
+                    )
+                }
+            }
+
 
             // OTP Input Fields
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 otpValues.forEachIndexed { index, value ->
                     OutlinedTextField(
@@ -96,65 +162,54 @@ fun OtpScreen(navController: NavController) {
                                 val newList = otpValues.toMutableList()
                                 newList[index] = newValue
                                 otpValues = newList
+
+                                // Auto-focus next field
+                                if (newValue.isNotEmpty() && index < 3) {
+                                    focusRequesters[index + 1].requestFocus()
+                                }
                             }
                         },
                         modifier = Modifier
                             .width(64.dp)
-                            .height(64.dp),
+                            .height(64.dp)
+                            .focusRequester(focusRequesters[index])
+                            .clip(shape = RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF0F5FA)),
                         textStyle = TextStyle(
                             textAlign = TextAlign.Center,
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Sen
                         ),
                         maxLines = 1,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = orangeColor,
-                            unfocusedBorderColor = Color.LightGray
+                            unfocusedBorderColor = Color(0x00F0F5FA),
+                            backgroundColor = Color(0xFFF0F5FA)
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = CircleShape
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Resend code text
-            Row(
-                modifier = Modifier.padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Didn't receive code? ",
-                    color = Color.Gray
-                )
-                TextButton(
-                    onClick = { /* Resend Logic */ }
-                ) {
-                    Text(
-                        "Resend",
-                        color = orangeColor,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Verify Button
             Button(
                 onClick = { /* Verify OTP Logic */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(62.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = orangeColor),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     "VERIFY",
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.W800,
+                    fontFamily = Sen
                 )
             }
         }

@@ -13,6 +13,9 @@ composeBom = "2024.04.01"
 material = "1.7.6"
 navigationCompose = "2.8.5"
 ui = "1.7.6"
+uiTestAndroid = "1.7.6"
+play-services-location = "21.0.1"
+kotlinx-coroutines-play-services = "1.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +38,9 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
+google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

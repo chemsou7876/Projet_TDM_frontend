@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.projet_tdm.ui.theme.Sen
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(navController: NavController) {
@@ -76,7 +78,8 @@ fun OnboardingScreen(navController: NavController) {
                         text = titles[page],
                         color = Color.White,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = Sen,
+                        fontWeight = FontWeight.W800,
                         textAlign = TextAlign.Center
                     )
 
@@ -86,7 +89,9 @@ fun OnboardingScreen(navController: NavController) {
                     Text(
                         text = descriptions[page],
                         color = Color.White,
+                        fontFamily = Sen,
                         fontSize = 16.sp,
+                        fontWeight = FontWeight.W400,
                         textAlign = TextAlign.Center
                     )
 
@@ -125,15 +130,17 @@ fun OnboardingScreen(navController: NavController) {
                                 navController.navigate("login")
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(62.dp),
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color(0xFFFF7622)
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = if (pagerState.currentPage < images.size - 1) "Next" else "Get Started",
+                            text = if (pagerState.currentPage < images.size - 1) "NEXT" else "GET STARTED",
                             color = Color.White,
+                            fontFamily = Sen,
+                            fontWeight = FontWeight.W700,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
