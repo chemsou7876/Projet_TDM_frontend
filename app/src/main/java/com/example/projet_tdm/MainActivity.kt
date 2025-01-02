@@ -9,7 +9,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.projet_tdm.ui.theme.Projet_TDMTheme
-import com.example.projet_tdm.ui.theme.Cart.MyCart // Assurez-vous que cet import est correct
+import com.example.projet_tdm.ui.theme.Cart.MyCart
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
