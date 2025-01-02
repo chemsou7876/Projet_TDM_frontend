@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,7 +81,10 @@ fun ProfilePage(navController: NavController){
             Image(
                 painter = painterResource(id = R.drawable.back_icon),
                 contentDescription = "Default Profile Image",
-                modifier = Modifier.size(55.dp).clickable {
+                modifier = Modifier.size(55.dp).clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
                     navController.navigate("settings") // Navigate to the HomeScreen when clicked
                 },
                 contentScale = ContentScale.Crop
@@ -146,7 +150,8 @@ fun ProfilePage(navController: NavController){
                         value = full_name,
                         onValueChange = {full_name = it},
                         modifier = Modifier.fillMaxWidth()
-                            .background(Color(0xFFF0F5FA)),
+                           // .background(Color(0xFFF0F5FA))
+                                ,
 
                         placeholder = { Text("Zaidi yasmine", color = Color(0xFF6B6E82)) },
 

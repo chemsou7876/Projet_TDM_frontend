@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.example.projet_tdm.navigation.AppNavigation
 import com.example.projet_tdm.screens.auth.SignUpScreen
+import com.example.projet_tdm.screens.profile.Adresses
 import com.example.projet_tdm.screens.profile.ProfilePage
 import com.example.projet_tdm.screens.settings.Setting
 
@@ -18,8 +19,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-               AppNavigation()
-
+             // AppNavigation()
+    Adresses()
 
 
 

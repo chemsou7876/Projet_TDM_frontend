@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +49,12 @@ fun Setting(navController: NavController){
             Image(
                 painter = painterResource(id = R.drawable.back_icon),
                 contentDescription = "Default Profile Image",
-                modifier = Modifier.size(55.dp).clickable {
+                modifier = Modifier.size(55.dp).clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                )
+                {
+
                     //navController.navigate("home") // Navigate to the HomeScreen when clicked
                 },
                 contentScale = ContentScale.Crop
@@ -63,7 +70,10 @@ fun Setting(navController: NavController){
             painter = painterResource(id = R.drawable.ic_more),
             contentDescription = "Default Profile Image",
             modifier = Modifier.size(55.dp)
-                .clickable {
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
                 //navController.navigate("home") // Navigate to the HomeScreen when clicked
             },
             contentScale = ContentScale.Crop
@@ -139,8 +149,16 @@ fun Setting(navController: NavController){
             .clip(shape = RoundedCornerShape(16.dp))
             .background(color = Color(0xFFF0F5FA))
             .padding(20.dp)
+
         ){
-            Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically
+            Row (modifier = Modifier.fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    navController.navigate("edit_profile") // Navigate to the HomeScreen when clicked
+                },
+                verticalAlignment = Alignment.CenterVertically
                 , horizontalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Image(
@@ -156,14 +174,19 @@ fun Setting(navController: NavController){
                 Image(
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = "Default Profile Image",
-                    modifier = Modifier.clickable {
-                        navController.navigate("edit_profile") // Navigate to the HomeScreen when clicked
-                    },
+
                     contentScale = ContentScale.Crop
                 )
             }
             Spacer(modifier = Modifier.height(15.dp))
-            Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically
+            Row (modifier = Modifier.fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    navController.navigate("adresses")
+                }
+                , verticalAlignment = Alignment.CenterVertically
                 , horizontalArrangement = Arrangement.SpaceBetween) {
 
                 Row(verticalAlignment = Alignment.CenterVertically){
@@ -190,9 +213,18 @@ fun Setting(navController: NavController){
             .clip(shape = RoundedCornerShape(16.dp))
             .background(color = Color(0xFFF0F5FA))
             .padding(20.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                navController.navigate("login")
+            }
 
         ){
-            Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically
+            Row (modifier = Modifier
+                .fillMaxWidth(),
+
+                 verticalAlignment = Alignment.CenterVertically
                 , horizontalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Image(
@@ -208,9 +240,7 @@ fun Setting(navController: NavController){
                 Image(
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = "Default Profile Image",
-                    modifier = Modifier.clickable {
-                        navController.navigate("login")
-                    },
+
                     contentScale = ContentScale.Crop
                 )
             }
