@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.projet_tdm.screens.profile.ProfilePage
+import com.example.projet_tdm.screens.settings.Setting
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -57,7 +58,7 @@ fun HomeScreen(navController: NavController) {
                 1 -> SearchContent()
                 2 -> TrackContent()
                 3 -> NotificationsContent()
-                4 -> ProfileContent()
+                4 -> ProfileContent(navController)
             }
         }
     }
@@ -97,9 +98,9 @@ fun NotificationsContent() {
 }
 
 @Composable
-fun ProfileContent() {
+fun ProfileContent(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Profile tab content
-        ProfilePage()
+        Setting(navController)
     }
 }

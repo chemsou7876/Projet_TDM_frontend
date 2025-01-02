@@ -38,7 +38,7 @@ import com.example.projet_tdm.R
 fun Setting(navController: NavController){
     val defaultProfileImage = painterResource(id = R.drawable.profile_pic)
 
-    Column(modifier = Modifier.padding((12.dp)).fillMaxSize()
+    Column(modifier = Modifier.padding(vertical = 10.dp , horizontal = 20.dp).fillMaxSize()
         //   .verticalScroll(scrollState) ,
         , verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -83,8 +83,10 @@ fun Setting(navController: NavController){
                 Text("I love fast food")
             } }
 
-        Column (modifier = Modifier.background(color = Color(0xFFF0F5FA))
+        Column (modifier = Modifier
             .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFF0F5FA))
             .padding(20.dp)
         ){
             Row(verticalAlignment = Alignment.CenterVertically){
@@ -132,8 +134,10 @@ fun Setting(navController: NavController){
         }
 
       //  Spacer(modifier = Modifier.height(25.dp))
-        Column (modifier = Modifier.background(color = Color(0xFFF0F5FA))
+        Column (modifier = Modifier
             .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFF0F5FA))
             .padding(20.dp)
         ){
             Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically
@@ -153,7 +157,7 @@ fun Setting(navController: NavController){
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = "Default Profile Image",
                     modifier = Modifier.clickable {
-                        //navController.navigate("home") // Navigate to the HomeScreen when clicked
+                        navController.navigate("edit_profile") // Navigate to the HomeScreen when clicked
                     },
                     contentScale = ContentScale.Crop
                 )
@@ -181,9 +185,12 @@ fun Setting(navController: NavController){
                 )
             }
         }
-        Column (modifier = Modifier.background(color = Color(0xFFF0F5FA))
+        Column (modifier = Modifier
             .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(16.dp))
+            .background(color = Color(0xFFF0F5FA))
             .padding(20.dp)
+
         ){
             Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically
                 , horizontalArrangement = Arrangement.SpaceBetween) {
@@ -202,7 +209,7 @@ fun Setting(navController: NavController){
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = "Default Profile Image",
                     modifier = Modifier.clickable {
-                        //navController.navigate("home") // Navigate to the HomeScreen when clicked
+                        navController.navigate("login")
                     },
                     contentScale = ContentScale.Crop
                 )

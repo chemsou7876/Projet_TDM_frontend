@@ -48,11 +48,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
 
 @Composable
-fun ProfilePage(){
+fun ProfilePage(navController: NavController){
     var full_name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -76,14 +77,14 @@ fun ProfilePage(){
     ) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = { println("clicked !!") }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.back_icon),
-                    contentDescription = "Back icon"
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.back_icon),
+                contentDescription = "Default Profile Image",
+                modifier = Modifier.size(55.dp).clickable {
+                    navController.navigate("settings") // Navigate to the HomeScreen when clicked
+                },
+                contentScale = ContentScale.Crop
+            )
             Spacer(modifier = Modifier.width(10.dp))
             Text(text ="Edit profile",
                 fontSize = 20.sp)
@@ -121,19 +122,17 @@ fun ProfilePage(){
                         contentScale = ContentScale.Crop
                     )
                 }
-
-                IconButton(
-                    onClick = onProfileImageClick,
+                Image(
+                    painter = painterResource(id = R.drawable.ic_edit),
+                    contentDescription = "Default Profile Image",
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .size(40.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_edit) ,
-                        contentDescription = "Edit Profile"
-                    )
-                }
+                        .clickable { showDialog = true  },
+                    contentScale = ContentScale.Crop
+                )
+
 
             }
 
