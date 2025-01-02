@@ -9,25 +9,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.projet_tdm.ui.theme.Projet_TDMTheme
-import com.example.projet_tdm.ui.theme.Cart.MyCart
-
+import com.example.projet_tdm.ui.theme.Tracking.MyTracking
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             Projet_TDMTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MyCartScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MyTrackingScreen()
             }
         }
     }
 }
 
 @Composable
-fun MyCartScreen(modifier: Modifier = Modifier) {
-    MyCart()
+fun MyTrackingScreen() {
+    Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
+        MyTracking(
+            modifier = Modifier.padding(padding),
+            onBackClick = { /* Logic for back navigation, e.g., finish() or navigation controller */ }
+        )
+    }
 }
