@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
+import com.example.projet_tdm.components.OrangeButton
 
 @Composable
 fun ProfilePage(navController: NavController){
@@ -196,13 +197,7 @@ fun ProfilePage(navController: NavController){
                 }
 
             }
-            TextButton(onClick = {
-            },
-                modifier = Modifier.fillMaxWidth(),
-                colors =  ButtonDefaults.textButtonColors(Color(0xFFFF7622))) {
-                Text("Save", fontSize = 18.sp
-                    , color = Color.White)
-            }
+           OrangeButton("SAVE", onClick = {})
 
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.GetContent(),

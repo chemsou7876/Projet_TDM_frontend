@@ -56,9 +56,10 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
 import com.example.projet_tdm.components.Adresse_card
+import com.example.projet_tdm.components.OrangeButton
 
 @Composable
-fun Adresses(){
+fun Adresses(navController: NavController){
 
     var items by remember {
         mutableStateOf(
@@ -85,7 +86,7 @@ fun Adresses(){
                 modifier = Modifier
                     .size(55.dp)
                     .clickable {
-                        //navController.navigate("settings") // Navigate to the HomeScreen when clicked
+                       navController.navigate("settings") //navigate to the settigns page
                     },
                 contentScale = ContentScale.Crop
             )
@@ -108,6 +109,8 @@ fun Adresses(){
                     type = item.third,
                     onEditClick = {
                         println("Edit clicked for ${item.first}")
+                        navController.navigate("edit_adresses") //navigate to the settigns page
+
                     },
                     onDeleteClick = {
                         // Update the state to remove the clicked item
@@ -116,8 +119,12 @@ fun Adresses(){
                 )
             }
         }
+        Column {
+            OrangeButton("Add new address" , onClick = {  navController.navigate("edit_adresses") })
 
+        }
     }
+
 }
 
 

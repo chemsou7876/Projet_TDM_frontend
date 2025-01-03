@@ -16,6 +16,7 @@ import com.example.projet_tdm.screens.home.HomeScreen
 import com.example.projet_tdm.screens.profile.UploadProfileScreen
 import com.example.projet_tdm.screens.location.LocationScreen
 import com.example.projet_tdm.screens.profile.Adresses
+import com.example.projet_tdm.screens.profile.Edit_adresses
 import com.example.projet_tdm.screens.profile.ProfilePage
 import com.example.projet_tdm.screens.settings.Setting
 
@@ -35,7 +36,8 @@ fun AppNavigation() {
         composable("home") { HomeScreen(navController) }
         composable("edit_profile") { ProfilePage(navController) }
         composable("settings") { Setting(navController) }
-        composable("adresses") { Adresses() }
+        composable("adresses") { Adresses(navController) }
+        composable("edit_adresses") { Edit_adresses(navController) }
 
     }
 }
