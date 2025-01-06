@@ -1,4 +1,4 @@
-package com.example.projet_tdm.ui.theme.Tracking
+package com.example.projet_tdm.screens.Tracking
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -24,45 +24,35 @@ import kotlinx.coroutines.delay
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MyTracking(
-    startTrackingTime: Boolean, // Nouveau paramètre pour démarrer le suivi du temps
+    startTrackingTime: Boolean,
     onBackClick: () -> Unit,
     driverNumber: String,
     restaurantName: String = "Uttora Coffee House",
     orderDetails: String = "Ordered At 06 Sept, 10:00pm",
     deliveryTime: String = "20 min",
     statuses: List<Pair<String, Boolean>> = listOf(
-        "Your order has been received" to false,  // Step 1: Not started
-        "The restaurant is preparing your food" to false,  // Step 2: Not started
-        "Your order has been picked up for delivery" to false,  // Step 3: Not started
-        "Your Order is here!" to false  // Step 4: Not started
+        "Your order has been received" to false,
+        "The restaurant is preparing your food" to false,
+        "Your order has been picked up for delivery" to false,
+        "Your Order is here!" to false
     )
 ) {
     var currentStatuses by remember { mutableStateOf(statuses) }
     var timerRunning by remember { mutableStateOf(startTrackingTime) }
 
     // Durée des étapes (en secondes)
-    val stepDurations = listOf(5, 5, 5, 5) // Délai de 5 secondes pour chaque étape, tu peux modifier
+    val stepDurations = listOf(5, 5, 5, 5)
 
-    // Si le suivi commence, on démarre le suivi des étapes
+    // Gestion du suivi des étapes
     LaunchedEffect(timerRunning) {
         if (timerRunning) {
             for (i in currentStatuses.indices) {
-                delay(stepDurations[i] * 1000L) // Attendre la durée de l'étape actuelle
+                delay(stepDurations[i] * 1000L)
 
-                // Mise à jour de l'état des étapes
                 currentStatuses = currentStatuses.mapIndexed { index, pair ->
-                    when {
-                        index == i -> pair.copy(second = true) // Étape en cours
-                        index == i - 1 -> pair.copy(second = true) // Étape précédente terminée
-                        else -> pair // Ne change pas les autres étapes
-                    }
+                    if (index <= i) pair.copy(second = true) else pair
                 }
-
-                // Après chaque étape, on marque la suivante comme "en cours"
             }
-
-            // Une fois toutes les étapes terminées, remettre l'état initial
-            currentStatuses = currentStatuses.map { it.copy(second = false) }
         }
     }
 
@@ -89,32 +79,22 @@ fun MyTracking(
                 )
             }
         },
-        modifier = Modifier.fillMaxSize().padding(16.dp) // Retirer contentPadding
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp) // Ajouter de l'espace entre la flèche et les informations sur la commande
+                .padding(top = 80.dp)
         ) {
-            // Affichage des informations du restaurant
             RestaurantInfo(restaurantName, orderDetails)
-
-            Spacer(modifier = Modifier.height(24.dp)) // Espace entre les infos du resto et les étapes
-
-            // Affichage des étapes avec leur état
+            Spacer(modifier = Modifier.height(24.dp))
             currentStatuses.forEachIndexed { index, (status, isActive) ->
                 StatusItem(status, isActive)
-                Spacer(modifier = Modifier.height(16.dp)) // Espace entre chaque étape
+                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            Spacer(modifier = Modifier.height(32.dp)) // Espace entre les étapes et le temps de livraison
-
-            // Estimation du temps de livraison
+            Spacer(modifier = Modifier.height(32.dp))
             EstimatedDeliveryTime(deliveryTime)
-
-            Spacer(modifier = Modifier.height(32.dp)) // Espace entre le temps de livraison et les infos du conducteur
-
-            // Informations sur le conducteur
+            Spacer(modifier = Modifier.height(32.dp))
             DriverInfo(driverNumber)
         }
     }
@@ -205,7 +185,7 @@ fun DriverInfo(driverNumber: String) {
             text = driverNumber,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFFB6D3A), // Couleur cliquable
+            color = Color(0xFFFB6D3A),
             modifier = Modifier.clickable {
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$driverNumber"))
                 context.startActivity(intent)

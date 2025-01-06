@@ -1,4 +1,4 @@
-package com.example.projet_tdm.ui.theme.Cart
+package com.example.projet_tdm.screens.Cart
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

@@ -1,4 +1,4 @@
-package com.example.projet_tdm.ui.theme.Review
+package com.example.projet_tdm.screens.Review
 
 import android.app.Dialog
 import android.content.Context
