@@ -71,7 +71,7 @@ fun Edit_adresses(navController: NavController){
         .padding(vertical = 15.dp , horizontal = 6.dp)
         .fillMaxSize()
         //   .verticalScroll(scrollState) ,
-        , verticalArrangement = Arrangement.SpaceBetween
+        , //verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -86,12 +86,12 @@ fun Edit_adresses(navController: NavController){
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text ="My Addresses",
+            Text(text ="My Address",
                 fontSize = 20.sp)
 
         }
-Column {
-    Column (modifier = Modifier.padding(vertical = 8.dp)) {
+Column (modifier = Modifier.fillMaxWidth().padding(10.dp) , verticalArrangement = Arrangement.Top) {
+    Column (modifier = Modifier.padding(top =  12.dp , start = 8.dp , end = 8.dp)) {
         Text("ADRESSES",
             fontSize = 18.sp ,
             style = MaterialTheme.typography.h5,
@@ -108,7 +108,7 @@ Column {
                     tint = Color(0xFF6B6E82)
                 )
             },)
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Row (modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween  ){
             Column ( modifier = Modifier
@@ -141,7 +141,7 @@ Column {
             }
 
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Column {
             Text("APPARTMENT",
                 fontSize = 18.sp ,
@@ -154,7 +154,7 @@ Column {
                 placeholder = { Text("345", color = Color(0xFF6B6E82)) },
             )
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Column {
             Text("LABEL AS",
                 fontSize = 18.sp ,
@@ -192,9 +192,10 @@ Column {
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(30.dp))
         }
 }
+           // Spacer(modifier = Modifier.height(20.dp))
 
             OrangeButton("Save location" , onClick = {})
 
