@@ -1,10 +1,25 @@
 package com.example.projet_tdm
+// app/src/main/java/com/yourpackage/MainActivity.kt
 
+
+import Profile
 import android.os.Bundle
+import android.provider.ContactsContract.Profile
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+
 import androidx.compose.material3.*
 import com.example.projet_tdm.screens.Tracking.MyTracking
+
+import androidx.navigation.compose.rememberNavController
+import com.example.projet_tdm.models.Notification
+import com.example.projet_tdm.navigation.AppNavigation
+import com.example.projet_tdm.screens.auth.SignUpScreen
+import com.example.projet_tdm.screens.home.tabs.NotificationsTab
+import com.example.projet_tdm.screens.profile.Adresses
+import com.example.projet_tdm.screens.profile.Edit_adresses
+import com.example.projet_tdm.screens.profile.ProfilePage
+import com.example.projet_tdm.screens.settings.Setting
 
 class MainActivity : ComponentActivity() {
 
@@ -25,23 +40,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Définition de l'interface utilisateur
         setContent {
-            // Appel de l'écran de suivi
-            MyTracking(
-                startTrackingTime = true,  // Démarre le suivi automatiquement
-                onBackClick = { handleBackClick() },  // Gestion du bouton retour
-                driverNumber = driverNumber,
-                restaurantName = restaurantName,
-                orderDetails = orderDetails,
-                deliveryTime = estimatedDeliveryTime,
-                statuses = statusesFromBackend
-            )
-        }
-    }
 
-    // Fonction simulant le retour à l'écran précédent
-    private fun handleBackClick() {
-        finish()  // Ferme l'activité actuelle
+            AppNavigation()
+
+
+           
+        }
+
     }
 }
