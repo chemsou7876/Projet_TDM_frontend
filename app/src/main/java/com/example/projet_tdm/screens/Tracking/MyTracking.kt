@@ -24,7 +24,7 @@ import kotlinx.coroutines.delay
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MyTracking(
-    startTrackingTime: Boolean,
+    startTrackingTime: Boolean = true,
     onBackClick: () -> Unit,
     driverNumber: String,
     restaurantName: String = "Uttora Coffee House",

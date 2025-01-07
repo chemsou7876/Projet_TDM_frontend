@@ -177,7 +177,7 @@ fun LoginScreen(navController: NavController) {
 
             // Login Button
             Button(
-                onClick = { /* Login Logic */ },
+                onClick = { navController.navigate("home") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(62.dp),
