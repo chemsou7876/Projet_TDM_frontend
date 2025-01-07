@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,12 +27,18 @@ fun SplashScreen(navController: NavController) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.logo),
-//            contentDescription = "Logo",
-//            modifier = Modifier.size(200.dp)
-//        )
-        Text("Projet TDM nrml hna image")
+        //background image : bg_splash
+    ){
+        Image(
+            painter = painterResource(id = R.drawable.bg_splash),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo",
+            modifier = Modifier.size(200.dp)
+        )
     }
 }
