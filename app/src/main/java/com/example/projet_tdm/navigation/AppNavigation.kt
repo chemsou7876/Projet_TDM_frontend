@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.projet_tdm.models.getData
+import com.example.projet_tdm.screens.RestaurantView.RestaurantDetailsScreen
 import com.example.projet_tdm.screens.splash.SplashScreen
 import com.example.projet_tdm.screens.onboarding.OnboardingScreen
 import com.example.projet_tdm.screens.auth.LoginScreen
@@ -24,7 +26,7 @@ import com.example.projet_tdm.screens.settings.Setting
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "splash") {
+    NavHost(navController = navController, startDestination = "home") {
         composable("splash") { SplashScreen(navController) }
         composable("onboarding") { OnboardingScreen(navController) }
         composable("login") { LoginScreen(navController) }
@@ -38,6 +40,10 @@ fun AppNavigation() {
         composable("settings") { Setting(navController) }
         composable("adresses") { Adresses(navController) }
         composable("edit_adresses") { Edit_adresses(navController) }
-
+        composable("restaurantDetails/{restaurantId}") { backStackEntry ->
+            val restaurantId = backStackEntry.arguments?.getString("restaurantId")?.toIntOrNull()
+            val restaurant = getData().find { it.id == restaurantId }
+            restaurant?.let { RestaurantDetailsScreen(navController,it) }
+        }
     }
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
@@ -53,7 +54,7 @@ import com.example.projet_tdm.ui.theme.Sen
 
 
 @Composable
-fun SearchCategorieView(){
+fun SearchCategorieView(navController: NavController){
     var selectedCategory by remember { mutableStateOf("Catégories") }
     LazyColumn(
         modifier = Modifier
@@ -76,7 +77,7 @@ fun SearchCategorieView(){
         }
 
         item {
-            OpenRestaurantsCategory()
+            OpenRestaurantsCategory(navController = navController)
         }
     }
 }
@@ -208,7 +209,7 @@ fun MenuBox(restaurant: Restaurant) {
 }
 
 @Composable
-fun OpenRestaurantsCategory() {
+fun OpenRestaurantsCategory(navController: NavController) {
     val restaurants = getData()
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -234,7 +235,7 @@ fun OpenRestaurantsCategory() {
             modifier = Modifier.fillMaxWidth()
         ) {
             restaurants.take(6).forEach { restaurant ->
-                RestaurantItem(restaurant = restaurant)
+                RestaurantItem(navController = navController,restaurant = restaurant)
                 Divider(color = Color.Transparent, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
             }
         }

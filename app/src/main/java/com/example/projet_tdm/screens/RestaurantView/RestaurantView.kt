@@ -46,21 +46,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.screens.search.MenuBox
 
 @Composable
-fun RestaurantDetailsScreen(restaurant: Restaurant) {
+fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant) {
     var selectedCategory by remember { mutableStateOf("Burger") }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Box {
+            Box (modifier = Modifier.padding(top = 16.dp)){
+
                 // Image principale (keep your existing Image composable)
                 Image(
                     painter = painterResource(id = restaurant.imgUrl),
@@ -70,6 +72,7 @@ fun RestaurantDetailsScreen(restaurant: Restaurant) {
                         .fillMaxWidth()
                         .height(200.dp)
                         .clip(RoundedCornerShape(15.dp))
+
                 )
 
                 // Back arrow with circular background
@@ -85,8 +88,10 @@ fun RestaurantDetailsScreen(restaurant: Restaurant) {
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.Black,
-                        modifier = Modifier.size(24.dp)
-                    )
+                        modifier = Modifier
+                        .size(24.dp)
+                        .clickable { navController.navigate("home") }
+)
                 }
             }
 

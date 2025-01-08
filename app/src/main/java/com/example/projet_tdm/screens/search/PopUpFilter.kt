@@ -1,6 +1,7 @@
 package com.example.projet_tdm.screens.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
@@ -38,17 +40,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.projet_tdm.ui.theme.Sen
+import androidx.compose.material3.RangeSlider
+
+data class PricingState(
+    val priceRange: ClosedFloatingPointRange<Float> = 0f..10000f,
+    val currentRange: ClosedFloatingPointRange<Float> = 0f..10000f
+)
 
 @Composable
 fun FilterDialog(
-    onDismiss: () -> Unit, // Callback pour fermer la pop-up
-    onFilterApply: (FilterState) -> Unit // Callback pour appliquer les filtres avec l'état des filtres
+    onDismiss: () -> Unit,
+    onFilterApply: (FilterState) -> Unit
 ) {
-    // État pour suivre la sélection des filtres
     var selectedDeliveryTime by remember { mutableStateOf(DeliveryTimeState()) }
     var selectedPricing by remember { mutableStateOf(PricingState()) }
     var selectedRating by remember { mutableStateOf(RatingState()) }
     var sliderPosition by remember { mutableStateOf(0f) }
+
+    // Calculate the current price based on slider position
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Box(
@@ -59,29 +69,38 @@ fun FilterDialog(
                 .padding(16.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // Header avec le titre et le bouton "Fermer"
+                // Previous header code remains the same...
                 Row(
                     modifier = Modifier.fillMaxWidth(),
+
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "Filter your search",
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
+                        fontFamily = Sen,
                         fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = { onDismiss() }) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close"
+                            contentDescription = "Close",
+                            tint = Color(0xFFA0A5BA)
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                // Section Delivery Time
-                Text(text = "DELIVER TIME", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                // Delivery Time section remains the same...
+                Text(
+                    text = "DELIVER TIME",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    fontFamily = Sen,
+                    color = Color(0xFF32343E)
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
@@ -103,28 +122,71 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Pricing Section
-                Text(
-                    text = "PRICING",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFFFFA500),
-                        activeTrackColor = Color(0xFFFFA500),
-                        inactiveTrackColor = Color.LightGray
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Updated Pricing Section
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "PRICING",
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp,
+                            fontFamily = Sen,
+                            color = Color(0xFF32343E)
+                        )
+                        Text(
+                            text = "DA ${selectedPricing.currentRange.start.toInt()} - ${selectedPricing.currentRange.endInclusive.toInt()}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            fontFamily = Sen,
+                            color = Color(0xFFFF7622)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RangeSlider(
+                        value = selectedPricing.currentRange,
+                        onValueChange = { range ->
+                            selectedPricing = selectedPricing.copy(currentRange = range)
+                        },
+                        valueRange = selectedPricing.priceRange,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color(0xFFFF7622),
+                            activeTrackColor = Color(0xFFFF7622),
+                            inactiveTrackColor = Color.LightGray
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "DA ${selectedPricing.priceRange.start.toInt()}",
+                            fontSize = 12.sp,
+                            fontFamily = Sen,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "DA ${selectedPricing.priceRange.endInclusive.toInt()}",
+                            fontSize = 12.sp,
+                            fontFamily = Sen,
+                            color = Color.Gray
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Section Rating
-                Text(text = "RATING", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                // Rating section remains the same...
+                Text(
+                    text = "RATING",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    fontFamily = Sen,
+                    color = Color(0xFF32343E)
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     RatingStar(
@@ -151,13 +213,11 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Bouton Filter
-                Button(
+                // Filter button remains the same...
+                TextButton(
                     onClick = { onFilterApply(FilterState(selectedDeliveryTime, selectedPricing, selectedRating)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
+                    modifier = Modifier.fillMaxWidth().height(60.dp).clip(shape = RoundedCornerShape(10.dp)),
+                    colors =  androidx.compose.material.ButtonDefaults.textButtonColors(Color(0xFFFF7622))
                 ) {
                     Text(text = "FILTER", color = Color.White, fontWeight = FontWeight.Bold)
                 }
@@ -171,14 +231,17 @@ fun FilterChip(label: String, selected: Boolean, onSelected: (Boolean) -> Unit) 
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(if (selected) Color(0xFFFFA500) else Color.LightGray)
+            .background(if (selected) Color(0xFFFFA500) else Color.Transparent)
+            .border(1.dp,if (selected) Color(0x00FFA500) else Color(0xFFEDEDED), RoundedCornerShape(50))
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onSelected(!selected) }
+
     ) {
         Text(
             text = label,
             color = if (selected) Color.White else Color.Black,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            fontFamily = Sen,
         )
     }
 }
@@ -207,9 +270,6 @@ data class DeliveryTimeState(
     val time3: Boolean = false
 )
 
-data class PricingState(
-    val value: Float = 0f
-)
 
 
 data class RatingState(

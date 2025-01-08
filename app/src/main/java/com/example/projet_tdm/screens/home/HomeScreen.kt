@@ -73,7 +73,7 @@ fun HomeScreen(navController: NavController) {
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTab) {
-                0 -> HomeTab()
+                0 -> HomeTab(navController)
                 1 -> CartTab()
                 2 -> TrackTab(
                 startTrackingTime = true,

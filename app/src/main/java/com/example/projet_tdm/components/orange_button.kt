@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun OrangeButton(text: String , onClick: () -> Unit){
@@ -20,5 +21,5 @@ fun OrangeButton(text: String , onClick: () -> Unit){
         modifier = Modifier.fillMaxWidth().height(60.dp).clip(shape = RoundedCornerShape(10.dp)),
         colors =  ButtonDefaults.textButtonColors(Color(0xFFFF7622))) {
         Text(text, fontSize = 18.sp
-            , color = Color.White) }
+            , color = Color.White, fontFamily = Sen) }
 }

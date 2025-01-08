@@ -5,6 +5,7 @@ import com.example.projet_tdm.ui.theme.Sen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,34 +56,73 @@ import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.search.FilterDialog
 
 
-
+val name: String= "User"
 
 @Composable
-fun HomeTab(){
+fun HomeTab(navController: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    var filteredRestaurants by remember { mutableStateOf(getData()) }
+    val isSearching = searchText.text.isNotEmpty()
+
+    // Filter restaurants when search text changes
+    fun filterRestaurants(query: String) {
+        filteredRestaurants = if (query.isEmpty()) {
+            getData()
+        } else {
+            getData().filter { restaurant ->
+                restaurant.name.contains(query, ignoreCase = true) ||
+                        restaurant.typeCuisine.contains(query, ignoreCase = true) ||
+                        restaurant.localisation.contains(query, ignoreCase = true)
+            }
+        }
+    }
 
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp)
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
     ) {
         Row { HeaderHome() }
-        Row { SearchBar(searchText) { newValue -> searchText = newValue } }
-        Row { CategoriesSection() }
-        //Row { PromotionBanner() }
-        Row { OpenRestaurantsSection() }
+        Row {
+            SearchBar(
+                searchText = searchText,
+                onValueChange = { newValue ->
+                    searchText = newValue
+                    filterRestaurants(newValue.text)
+                }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn {
+            // Only show Categories when not searching
+            if (!isSearching) {
+                item { CategoriesSection() }
+                item { OpenRestaurantsSection(navController) }
+            } else {
+                // Show search results when searching
+                item {
+                    OpenRestaurantsSectionWithSearch(
+                        restaurants = filteredRestaurants,
+                        searchQuery = searchText.text,
+                        navController = navController
+                    )
+                }
+            }
+        }
     }
 }
-
 @Composable
 fun HeaderHome() {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
+
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 45.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
+            .padding(top = 16.dp, bottom = 10.dp)
     ) {
         Text(
-            text = "Order Your Favorite Meal !",
+            text = "Hey ${name},",
             modifier = Modifier
                 .padding(top = 5.dp),
             color = Color(0xFF303030),
@@ -101,62 +142,63 @@ fun HeaderHome() {
 @Composable
 fun SearchBar(searchText: TextFieldValue, onValueChange: (TextFieldValue) -> Unit){
     var isFilterDialogVisible by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(25.dp))
-            .padding(horizontal = 45.dp),
+            .background(
+                color = Color(0xFFF5F5F5),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .border(
+                width = if (isFocused) 2.dp else 0.dp,
+                color = if (isFocused) Color(0xFFE3EBF2) else Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(id = R.drawable.search),
             contentDescription = "Search Icon",
-            tint = Color.Gray,
+            tint = Color(0xFFA0A5BA),
             modifier = Modifier.size(24.dp)
         )
         TextField(
             value = searchText,
             onValueChange = onValueChange,
-            placeholder = { Text("Search restaurant..." ,fontFamily = Sen,) },
+            placeholder = { Text("Search restaurant...", fontFamily = Sen) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFFFF8B06),
-                unfocusedBorderColor = Color(0xFF303030),
-                unfocusedContainerColor = Color(0xFFF5F5F5),
-                focusedContainerColor = Color(0xFFF5F5F5)
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                unfocusedContainerColor = Color(0xFFF6F6F6),
+                focusedContainerColor = Color(0xFFF6F6F6),
             ),
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 8.dp)
+                .onFocusChanged { isFocused = it.isFocused }
         )
-        Divider(
-            color = Color.Gray,
-            modifier = Modifier
-                .height(24.dp)
-                .width(1.dp)
-        )
-        IconButton(onClick = {isFilterDialogVisible = true}) {
+
+        IconButton(onClick = { isFilterDialogVisible = true }) {
             Icon(
                 painter = painterResource(id = R.drawable.filter),
                 contentDescription = "Filter Icon",
-                tint = Color(0xFFFFA500),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(24.dp)
+                tint = Color(0xFFA0A5BA),
+                modifier = Modifier.size(24.dp)
             )
         }
-        // Affiche la pop-up si elle est visible
+
         if (isFilterDialogVisible) {
             FilterDialog(
                 onDismiss = { isFilterDialogVisible = false },
                 onFilterApply = {
-                    // Logique pour appliquer les filtres
                     isFilterDialogVisible = false
                 }
             )
         }
     }
 }
-
 @Composable
 fun CategoriesSection() {
     Column {
@@ -167,12 +209,25 @@ fun CategoriesSection() {
         ) {
             Text(
                 text = "All Categories",
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontFamily = Sen,
                 //fontWeight = FontWeight.Bold
             )
             TextButton (onClick = { /* See all action */ }) {
-                Text(text = "See All" , fontFamily = Sen)
+                Row (
+
+                    verticalAlignment = Alignment.CenterVertically,
+
+                ){
+                    Text(text = "See All" , fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier
+                            .size(7.dp)
+                    )
+                }
 
             }
         }
@@ -269,16 +324,17 @@ fun PromotionBanner() {
 }
 
 @Composable
-fun RestaurantItem( restaurant: Restaurant) {
+fun RestaurantItem( navController: NavController,restaurant: Restaurant) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(15.dp))
+            .clip(shape = RoundedCornerShape(16.dp))
+            .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(16.dp))
             .clickable {
-              //  navController.navigate("restaurantDetails/${restaurant.id}")
+                navController.navigate("restaurantDetails/${restaurant.id}")
             }
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(15.dp))
+
         //.padding(16.dp)
     ) {
         Column {
@@ -289,6 +345,7 @@ fun RestaurantItem( restaurant: Restaurant) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
                     .height(150.dp)
                     .background(Color.Gray, shape = RoundedCornerShape(10.dp))
             )
@@ -299,7 +356,7 @@ fun RestaurantItem( restaurant: Restaurant) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 10.dp)
+                    .padding(horizontal = 10.dp)
             ) {
                 // Afficher le nom du restaurant
                 Text(
@@ -312,6 +369,7 @@ fun RestaurantItem( restaurant: Restaurant) {
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
+
                 ) {
                     Text(
                         text = restaurant.noteMoy.toString(), // Conversion de Double en String
@@ -334,65 +392,134 @@ fun RestaurantItem( restaurant: Restaurant) {
             Spacer(modifier = Modifier.height(4.dp))
 
             // Afficher le type de cuisine et la localisation
-            Text(
-                text = "${restaurant.typeCuisine} - ${restaurant.localisation}",
-                fontFamily = Sen,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Icônes de réseaux sociaux
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 10.dp)
-            ) {
-                Image(
-                    modifier = Modifier
-                        .size(15.dp),
-                    painter = painterResource(R.drawable.clock),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop
-
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-
+            Column(
+                modifier = Modifier.padding(top = 0.dp, bottom = 10.dp, start = 10.dp, end = 10.dp)
+            ){
                 Text(
-                    text = "${restaurant.deliverytime}    - ",
-
+                    text = "${restaurant.typeCuisine} - ${restaurant.localisation}",
+                    fontFamily = Sen,
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Image(
+                // Icônes de réseaux sociaux
+                Row(
+                    horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
-                        .size(15.dp),
-                    painter = painterResource(R.drawable.bike_icon),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop
-                )
+                        .fillMaxWidth()
+                        .padding(end = 10.dp)
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .size(15.dp),
+                        painter = painterResource(R.drawable.clock),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
 
-                Spacer(modifier = Modifier.width(5.dp))
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
 
-                Text(
-                    text = "${restaurant.deliveryprice}",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                    Text(
+                        text = "${restaurant.deliverytime}    - ",
+
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Image(
+                        modifier = Modifier
+                            .size(15.dp),
+                        painter = painterResource(R.drawable.bike_icon),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    Text(
+                        text = "${restaurant.deliveryprice}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
             }
+
+
         }
     }
 }
 
 @Composable
-fun OpenRestaurantsSection() {
-    val restaurants = getData()
+fun OpenRestaurantsSectionWithSearch(
+    restaurants: List<Restaurant>,
+    searchQuery: String,
+    navController: NavController
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Available Restaurants",
+                fontSize = 20.sp,
+                fontFamily = Sen,
+            )
+            TextButton(onClick = { /* See all action */ }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier.size(7.dp)
+                    )
+                }
+            }
+        }
 
+        if (restaurants.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No restaurants found for \"$searchQuery\"",
+                    color = Color.Gray,
+                    fontFamily = Sen
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                restaurants.forEach { restaurant ->
+                    Box(modifier = Modifier.clickable {}) {
+                        RestaurantItem(navController= navController,restaurant = restaurant)
+                    }
+                    Divider(
+                        color = Color(0xFFE3EBF2),
+                        thickness = 0.5.dp,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+fun OpenRestaurantsSection(navController: NavController) {
+    val restaurants = getData()
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -405,28 +532,36 @@ fun OpenRestaurantsSection() {
             Text(
                 text = "Open Restaurants",
                 fontSize = 20.sp,
-                //fontFamily = SenFont,
                 fontFamily = Sen,
-                //fontWeight = FontWeight.Bold
             )
             TextButton(onClick = { /* See all action */ }) {
-                Text(text = "See All")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier.size(7.dp)
+                    )
+                }
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-            //.padding(vertical = 8.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            items(restaurants) { restaurant ->
+            restaurants.forEach { restaurant ->
                 Box(modifier = Modifier.clickable {}) {
-                    RestaurantItem(restaurant = restaurant)
+                    RestaurantItem(navController= navController ,restaurant = restaurant)
                 }
-                Divider(color = Color.Transparent, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
+                Divider(
+                    color = Color(0xFFE3EBF2),
+                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
             }
-
-
         }
     }
 }
