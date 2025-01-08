@@ -12,15 +12,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.components.CustomTextField
+import com.example.projet_tdm.components.PasswordField
 import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
@@ -30,23 +36,72 @@ fun LoginScreen(navController: NavController) {
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
 
+    // Error states
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var showError by remember { mutableStateOf(false) }
+
     val orangebg = Color(0xFFFF7622)
     val orangeColor = Color(0x86FF7622)
+    val errorColor = Color(0xFFB00020)
+    val borderColor = Color(0xFFE3EBF2)
+    // Validation functions
+    fun validateEmail(): Boolean {
+        return when {
+            email.isEmpty() -> {
+                emailError = "Email is required"
+                false
+            }
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                emailError = "Invalid email format"
+                false
+            }
+            else -> {
+                emailError = null
+                true
+            }
+        }
+    }
+
+    fun validatePassword(): Boolean {
+        return when {
+            password.isEmpty() -> {
+                passwordError = "Password is required"
+                false
+            }
+            password.length < 6 -> {
+                passwordError = "Password must be at least 6 characters"
+                false
+            }
+            else -> {
+                passwordError = null
+                true
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(orangebg),
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(orangebg, orangebg)
+                )
+            )
+            .paint(
+                painterResource(id = R.drawable.auth_bg),
+                contentScale = ContentScale.Crop
+            ),
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header Container with transparent background
+        // Header section remains the same
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Text(
                 text = "Log In",
                 fontSize = 30.sp,
@@ -66,7 +121,7 @@ fun LoginScreen(navController: NavController) {
             )
         }
 
-        // White Container for the rest of the content
+        // White Container
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,72 +132,33 @@ fun LoginScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Email Field
-            Text(
-                text = "EMAIL",
-                fontFamily = Sen,
-                fontWeight = FontWeight.W400,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                color = Color(0xFF32343E),
-                fontSize = 12.sp
-            )
-            OutlinedTextField(
+            CustomTextField(
                 value = email,
-                onValueChange = { email = it },
-                placeholder = {
-                    Text("Please enter your Email", color = Color(0xFFA0A5BA),fontWeight = FontWeight.W400, fontFamily = Sen,
-                ) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .background(Color(0xFFF0F5FA)),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = orangeColor,
-                    unfocusedBorderColor = Color(0x00F0F5FA),
-                )
+                onValueChange = {
+                    email = it
+                    emailError = null
+                },
+                label = "EMAIL",
+                placeholder = "Please enter your Email",
+                isEmail = true,
+                error = emailError
             )
 
             // Password Field
-            Text(
-                text = "PASSWORD",
-                fontWeight = FontWeight.W400,
-                fontFamily = Sen,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                color = Color(0xFF32343E),
-                fontSize = 12.sp
-            )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = {
-                    Text("* * * * * * * * * ", color = Color(0xFFA0A5BA),fontWeight = FontWeight.W400, fontFamily = Sen,
-                    ) },                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility",
-                            tint = Color(0xFFA0A5BA) // Optional: Set icon color
-
-                        )
-                    }
+            PasswordField(
+                password = password,
+                label = "PASSWORD",
+                onPasswordChange = {
+                    password = it
+                    passwordError = null
+                    showError = false
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .background(Color(0xFFF0F5FA)),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = orangeColor,
-                    unfocusedBorderColor = Color(0x00F0F5FA),
-
-                    )
+                passwordError = passwordError,
+                passwordVisible = passwordVisible,
+                onPasswordVisibilityChange = { passwordVisible = it }
             )
 
-            // Remember me and Forgot Password row
+            // Remember me and Forgot Password row (remains the same)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,11 +173,15 @@ fun LoginScreen(navController: NavController) {
                         checked = rememberMe,
                         onCheckedChange = { rememberMe = it },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFFFFA500), // Orange color
+                            checkedColor = Color(0xFFFFA500),
                             uncheckedColor = Color(0xFFE3EBF2)
                         )
                     )
-                    Text("Remember me", fontSize = 14.sp, color = Color(0xFF7E8A97), fontWeight = FontWeight.W400,fontFamily = Sen)
+                    Text("Remember me",
+                        fontSize = 14.sp,
+                        color = Color(0xFF7E8A97),
+                        fontWeight = FontWeight.W400,
+                        fontFamily = Sen)
                 }
 
                 TextButton(onClick = { navController.navigate("forgot_password") }) {
@@ -170,24 +190,40 @@ fun LoginScreen(navController: NavController) {
                         color = orangebg,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W400,
-                        fontFamily =  Sen,
+                        fontFamily = Sen,
                     )
                 }
             }
 
-            // Login Button
+            // General error message (shows when form submission fails)
+
+
+            // Login Button with validation
             Button(
-                onClick = { navController.navigate("home") },
+                onClick = {
+                    val isEmailValid = validateEmail()
+                    val isPasswordValid = validatePassword()
+
+                    if (isEmailValid && isPasswordValid) {
+                        navController.navigate("home")
+                    } else {
+                        showError = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(62.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = orangebg),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("LOG IN", color = Color.White, fontWeight = FontWeight.Bold, fontFamily = Sen)
+                Text("LOG IN",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Sen)
             }
 
-            // Sign up text and link
+            // Rest of the UI remains the same...
+            // Sign up text and social login buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,11 +231,15 @@ fun LoginScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Don't have an account? ",fontSize = 16.sp, color = Color(0xFF646982), fontWeight = FontWeight.W400,fontFamily = Sen)
+                Text("Don't have an account? ",
+                    fontSize = 16.sp,
+                    color = Color(0xFF646982),
+                    fontWeight = FontWeight.W400,
+                    fontFamily = Sen)
                 TextButton(onClick = { navController.navigate("signup") }) {
                     Text(
                         "SIGN UP",
-                        color = orangeColor,
+                        color = orangebg,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Sen,
                         fontSize = 16.sp
@@ -216,7 +256,6 @@ fun LoginScreen(navController: NavController) {
                 fontFamily = Sen
             )
 
-            // Social login buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -229,7 +268,10 @@ fun LoginScreen(navController: NavController) {
                     icon = R.drawable.ic_twitter,
                     onClick = { /* Twitter login */ }
                 )
-
+                SocialLoginButton(
+                    icon = R.drawable.google_logo,
+                    onClick = { /* Google login */ }
+                )
             }
         }
     }
@@ -254,3 +296,8 @@ fun SocialLoginButton(
         )
     }
 }
+
+
+
+
+

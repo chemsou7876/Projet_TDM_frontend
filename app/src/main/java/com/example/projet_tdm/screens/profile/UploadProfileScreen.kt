@@ -16,14 +16,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.projet_tdm.R
 import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
@@ -65,7 +69,17 @@ fun UploadProfileScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .fillMaxHeight(0.15f)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFFF7622), Color(0xFFFF7622))
+                    )
+                )
+                .paint(
+                    painterResource(id = R.drawable.auth_bg),
+                    contentScale = ContentScale.Crop
+                ),
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -110,7 +124,7 @@ fun UploadProfileScreen(navController: NavController) {
                 modifier = Modifier
                     .size(200.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF5F5F5))
+                    .background(Color(0x23FF7622))
                     .clickable { launcher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
@@ -130,11 +144,11 @@ fun UploadProfileScreen(navController: NavController) {
                             imageVector = Icons.Default.Person,
                             contentDescription = "Upload Picture",
                             modifier = Modifier.size(64.dp),
-                            tint = Color.Gray
+                            tint = Color(0xFFFF7622)
                         )
                         Text(
                             text = "Tap to upload",
-                            color = Color.Gray,
+                            color = Color(0xFFFF7622),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(top = 8.dp)
                         )
