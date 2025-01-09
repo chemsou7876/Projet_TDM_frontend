@@ -47,6 +47,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.models.Menu
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.home.tabs.RestaurantItem
@@ -206,6 +207,97 @@ fun MenuBox(restaurant: Restaurant) {
             }
         }
     }
+}
+
+@Composable
+fun MenuBoxx(menu:Menu,restaurant: Restaurant,navController: NavController) {
+
+    Card(
+            modifier = Modifier
+                .clickable {
+                    navController.navigate("menuView/${menu.id}/${restaurant.id}")
+                }
+                // Chaque élément prend une proportion égale de l'espace disponible
+                .padding(5.dp)
+                .height(250.dp),
+
+            elevation = CardDefaults.elevatedCardElevation(4.dp)
+        ) {
+            // Use a Box to set the background color
+            Box(
+                modifier = Modifier
+                    .width(165.dp)
+                    .fillMaxSize()
+                    .background(Color.White) // Set the background color here
+            ) {
+                Column(
+                    modifier = Modifier.padding(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = menu.imageUrl), // Image du menu
+                        contentDescription = menu.name,
+                        modifier = Modifier
+                            .height(150.dp)
+                            .fillMaxWidth()
+                    )
+
+                    Column(
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = menu.name,
+                            fontSize = 15.sp,
+                            fontFamily = Sen,
+                            color = Color.Black,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        Text(
+                            text = "${restaurant.name}", // Nom du restaurant
+                            fontFamily = Sen,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .padding(end = 10.dp, start = 10.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                text = "${menu.price} DA", // Prix du menu
+                                fontFamily = Sen,
+                                color = Color.Black
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp) // Taille du cercle
+                                    .background(
+                                        color = Color(0xFFF58D1D),
+                                        shape = CircleShape
+                                    ), // Fond noir en forme de cercle
+                                contentAlignment = Alignment.Center // Alignement de l'icône au centre
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "ADD to cart Icon",
+                                    tint = Color.White, // Couleur blanche pour l'icône
+                                    modifier = Modifier.size(14.dp) // Taille de l'icône
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
 }
 
 @Composable

@@ -50,6 +50,7 @@ import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.screens.search.MenuBox
+import com.example.projet_tdm.screens.search.MenuBoxx
 
 @Composable
 fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant) {
@@ -206,7 +207,11 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 )
                 Spacer(modifier = Modifier.width(25.dp))
                 Icon(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable {
+                            navController.navigate("restaurantViewInfos/${restaurant.id}")
+                        },
                     imageVector = Icons.Outlined.Info,
                     contentDescription = null,
                     tint = Color(0xFFFFA500)
@@ -226,7 +231,7 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
-                val categories = listOf("Burger", "Sandwich", "Pizza", "Salad","Plats","Dessert","Boissons")
+                val categories = restaurant.menus.map { it.category }.distinct()
                 items(categories) { category ->
                     val isSelected = category == selectedCategory
                     Box(
@@ -265,8 +270,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
-                items(10) {
-                    MenuBox(restaurant)
+                items(restaurant.menus.filter { it.category == selectedCategory }) { menu ->
+                    MenuBoxx(menu, restaurant, navController)
                 }
             }
         }

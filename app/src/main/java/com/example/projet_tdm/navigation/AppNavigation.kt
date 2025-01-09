@@ -7,7 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.projet_tdm.models.getData
+import com.example.projet_tdm.screens.MenuView.MenuView
 import com.example.projet_tdm.screens.RestaurantView.RestaurantDetailsScreen
+import com.example.projet_tdm.screens.RestaurantView.RestaurantViewInfos
 import com.example.projet_tdm.screens.splash.SplashScreen
 import com.example.projet_tdm.screens.onboarding.OnboardingScreen
 import com.example.projet_tdm.screens.auth.LoginScreen
@@ -45,5 +47,20 @@ fun AppNavigation() {
             val restaurant = getData().find { it.id == restaurantId }
             restaurant?.let { RestaurantDetailsScreen(navController,it) }
         }
+        composable("restaurantViewInfos/{restaurantId}") { backStackEntry ->
+            val restaurantId = backStackEntry.arguments?.getString("restaurantId")?.toIntOrNull()
+            val restaurant = getData().find { it.id == restaurantId }
+            restaurant?.let { RestaurantViewInfos(navController,it) }
+        }
+        composable("menuView/{menuId}/{restaurantId}") { backStackEntry ->
+    val menuId = backStackEntry.arguments?.getString("menuId")?.toIntOrNull()
+    val restaurantId = backStackEntry.arguments?.getString("restaurantId")?.toIntOrNull()
+    val restaurant = getData().find { it.id == restaurantId }
+    val menu = restaurant?.menus?.find { it.id == menuId }
+    if (menu != null && restaurant != null) {
+        MenuView(navController, menu, restaurant)
+    }
+}
+
     }
 }

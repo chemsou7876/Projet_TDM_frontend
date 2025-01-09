@@ -33,11 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 
 @Composable
-fun RestaurantViewInfos(restaurant: Restaurant) {
+fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
