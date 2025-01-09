@@ -56,7 +56,7 @@ fun FilterDialog(
     var selectedDeliveryTime by remember { mutableStateOf(DeliveryTimeState()) }
     var selectedPricing by remember { mutableStateOf(PricingState()) }
     var selectedRating by remember { mutableStateOf(RatingState()) }
-    var sliderPosition by remember { mutableStateOf(0f) }
+
 
     // Calculate the current price based on slider position
 
@@ -256,13 +256,7 @@ fun RatingStar(selected: Boolean, onSelected: (Boolean) -> Unit) {
     )
 }
 
-// États des filtres
-data class OffersState(
-    val delivery: Boolean = false,
-    val pickUp: Boolean = false,
-    val offer: Boolean = false,
-    val onlinePayment: Boolean = false
-)
+
 
 data class DeliveryTimeState(
     val time1: Boolean = false,

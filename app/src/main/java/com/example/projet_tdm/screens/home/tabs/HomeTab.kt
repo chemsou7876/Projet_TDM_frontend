@@ -54,6 +54,7 @@ import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.search.FilterDialog
+import com.example.projet_tdm.screens.search.FilterState
 
 
 val name: String= "User"
@@ -63,18 +64,47 @@ fun HomeTab(navController: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var filteredRestaurants by remember { mutableStateOf(getData()) }
     val isSearching = searchText.text.isNotEmpty()
+    var isFilterDialogVisible by remember { mutableStateOf(false) }
+    var appliedFilters by remember { mutableStateOf<FilterState?>(null) }
 
-    // Filter restaurants when search text changes
-    fun filterRestaurants(query: String) {
-        filteredRestaurants = if (query.isEmpty()) {
-            getData()
-        } else {
-            getData().filter { restaurant ->
+    // Combined filter function that handles both search and filters
+    fun filterRestaurants(query: String, filters: FilterState? = appliedFilters) {
+        var results = getData()
+
+        // Apply text search if query is not empty
+        if (query.isNotEmpty()) {
+            results = results.filter { restaurant ->
                 restaurant.name.contains(query, ignoreCase = true) ||
                         restaurant.typeCuisine.contains(query, ignoreCase = true) ||
                         restaurant.localisation.contains(query, ignoreCase = true)
             }
         }
+
+        // Apply filters if they exist
+        filters?.let { filterState ->
+            results = results.filter { restaurant ->
+                // Filter by delivery time
+                val deliveryTimeMatch = when {
+                    filterState.deliveryTime.time1 -> restaurant.deliverytime == "10-15 min"
+                    filterState.deliveryTime.time2 -> restaurant.deliverytime == "20 min"
+                    filterState.deliveryTime.time3 -> restaurant.deliverytime == "30 min"
+                    else -> true // If no delivery time is selected, include all
+                }
+
+                // Filter by price range
+                val priceInRange = restaurant.menus.any { menu ->
+                    menu.price >= filterState.pricing.currentRange.start &&
+                            menu.price <= filterState.pricing.currentRange.endInclusive
+                }
+
+                // Filter by rating
+                val ratingMatch = restaurant.noteMoy >= 3.5
+
+                deliveryTimeMatch && priceInRange && ratingMatch
+            }
+        }
+
+        filteredRestaurants = results
     }
 
     Column(
@@ -90,17 +120,28 @@ fun HomeTab(navController: NavController) {
                 onValueChange = { newValue ->
                     searchText = newValue
                     filterRestaurants(newValue.text)
+                },
+                onFilterClick = { isFilterDialogVisible = true }
+            )
+        }
+
+        if (isFilterDialogVisible) {
+            FilterDialog(
+                onDismiss = { isFilterDialogVisible = false },
+                onFilterApply = { filterState ->
+                    appliedFilters = filterState
+                    filterRestaurants(searchText.text, filterState)
+                    isFilterDialogVisible = false
                 }
             )
         }
+
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
-            // Only show Categories when not searching
-            if (!isSearching) {
+            if (!isSearching && appliedFilters == null) {
                 item { CategoriesSection() }
                 item { OpenRestaurantsSection(navController) }
             } else {
-                // Show search results when searching
                 item {
                     OpenRestaurantsSectionWithSearch(
                         restaurants = filteredRestaurants,
@@ -112,6 +153,7 @@ fun HomeTab(navController: NavController) {
         }
     }
 }
+
 @Composable
 fun HeaderHome() {
     Row(
@@ -139,9 +181,13 @@ fun HeaderHome() {
     }
 }
 
+// Update SearchBar to expose onFilterClick
 @Composable
-fun SearchBar(searchText: TextFieldValue, onValueChange: (TextFieldValue) -> Unit){
-    var isFilterDialogVisible by remember { mutableStateOf(false) }
+fun SearchBar(
+    searchText: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onFilterClick: () -> Unit
+) {
     var isFocused by remember { mutableStateOf(false) }
 
     Row(
@@ -180,21 +226,12 @@ fun SearchBar(searchText: TextFieldValue, onValueChange: (TextFieldValue) -> Uni
                 .onFocusChanged { isFocused = it.isFocused }
         )
 
-        IconButton(onClick = { isFilterDialogVisible = true }) {
+        IconButton(onClick = onFilterClick) {
             Icon(
                 painter = painterResource(id = R.drawable.filter),
                 contentDescription = "Filter Icon",
                 tint = Color(0xFFA0A5BA),
                 modifier = Modifier.size(24.dp)
-            )
-        }
-
-        if (isFilterDialogVisible) {
-            FilterDialog(
-                onDismiss = { isFilterDialogVisible = false },
-                onFilterApply = {
-                    isFilterDialogVisible = false
-                }
             )
         }
     }

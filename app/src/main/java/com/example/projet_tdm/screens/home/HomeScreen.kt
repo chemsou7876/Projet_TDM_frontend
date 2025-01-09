@@ -17,10 +17,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.projet_tdm.R
-import com.example.projet_tdm.screens.Tracking.MyTracking
 import com.example.projet_tdm.screens.home.tabs.CartTab
 import com.example.projet_tdm.screens.home.tabs.HomeTab
 import com.example.projet_tdm.screens.home.tabs.NotificationsTab
+import com.example.projet_tdm.screens.home.tabs.SearchTab
 import com.example.projet_tdm.screens.home.tabs.TrackTab
 import com.example.projet_tdm.screens.profile.ProfilePage
 import com.example.projet_tdm.screens.settings.Setting
@@ -45,7 +45,7 @@ fun HomeScreen(navController: NavController) {
                     onClick = { selectedTab = 0 }
                 )
                 BottomNavigationItem(
-                    icon = { Icon( painter = painterResource(id = R.drawable.cart_nav),modifier=Modifier.size(24.dp),
+                    icon = { Icon( painter = painterResource(id = R.drawable.search),modifier=Modifier.size(24.dp),
                         contentDescription = "Cart") },
                     modifier=Modifier.size(50.dp),
                     selected = selectedTab == 1,
@@ -74,7 +74,7 @@ fun HomeScreen(navController: NavController) {
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTab) {
                 0 -> HomeTab(navController)
-                1 -> CartTab()
+                1 -> SearchTab(navController)
                 2 -> TrackTab(
                 startTrackingTime = true,
                 onBackClick = { selectedTab = 0 },  // Navigate back to home tab

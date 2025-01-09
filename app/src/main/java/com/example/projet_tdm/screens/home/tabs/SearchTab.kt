@@ -1,4 +1,4 @@
-package com.example.projet_tdm.screens.search
+package com.example.projet_tdm.screens.home.tabs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
@@ -43,7 +44,7 @@ import com.example.projet_tdm.screens.home.tabs.SearchBar
 import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
-fun SearchView() {
+fun SearchTab(navController: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     val restaurants = getData()
 
@@ -57,7 +58,7 @@ fun SearchView() {
 
         // Search Bar
         item {
-          //  SearchBar(searchText, onValueChange = { null}) { newValue -> searchText = newValue }
+            //  SearchBar(searchText, onValueChange = { null}) { newValue -> searchText = newValue }
         }
 
         // Suggested Restaurants Section Header

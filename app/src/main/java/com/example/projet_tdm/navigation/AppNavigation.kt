@@ -22,6 +22,7 @@ import com.example.projet_tdm.screens.location.LocationScreen
 import com.example.projet_tdm.screens.profile.Adresses
 import com.example.projet_tdm.screens.profile.Edit_adresses
 import com.example.projet_tdm.screens.profile.ProfilePage
+import com.example.projet_tdm.screens.search.SearchView
 import com.example.projet_tdm.screens.settings.Setting
 
 @Composable
@@ -61,6 +62,7 @@ fun AppNavigation() {
         MenuView(navController, menu, restaurant)
     }
 }
+        composable("searchView"){ SearchView() }
 
     }
 }
