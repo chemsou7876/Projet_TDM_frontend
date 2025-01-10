@@ -7,12 +7,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.FlowRowScopeInstance.weight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.models.PannierSingleton
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.search.FilterDialog
@@ -66,7 +71,7 @@ fun HomeTab(navController: NavController) {
     val isSearching = searchText.text.isNotEmpty()
     var isFilterDialogVisible by remember { mutableStateOf(false) }
     var appliedFilters by remember { mutableStateOf<FilterState?>(null) }
-
+    var promotion by remember { mutableStateOf(false) }
     // Combined filter function that handles both search and filters
     fun filterRestaurants(query: String, filters: FilterState? = appliedFilters) {
         var results = getData()
@@ -113,7 +118,7 @@ fun HomeTab(navController: NavController) {
             .fillMaxSize()
             .padding(horizontal = 20.dp)
     ) {
-        Row { HeaderHome() }
+        Row { HeaderHome(navController) }
         Row {
             SearchBar(
                 searchText = searchText,
@@ -139,7 +144,10 @@ fun HomeTab(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
             if (!isSearching && appliedFilters == null) {
-                item { CategoriesSection() }
+                if(promotion == true) {
+                    item { PromotionBanner() }
+                }
+                item { CategoriesSection(navController) }
                 item { OpenRestaurantsSection(navController) }
             } else {
                 item {
@@ -155,7 +163,16 @@ fun HomeTab(navController: NavController) {
 }
 
 @Composable
-fun HeaderHome() {
+fun HeaderHome(navController: NavController) {
+    val context = LocalContext.current
+
+    // Initialize PannierSingleton when the screen is composed
+    LaunchedEffect(Unit) {
+        PannierSingleton.initialize(context)
+    }
+
+    // Access the pannier
+    val pannier = PannierSingleton.pannier
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
 
@@ -173,10 +190,12 @@ fun HeaderHome() {
             fontWeight = FontWeight.Bold
         )
         Image(
-            painter = painterResource(R.drawable.cart2_icon),
+            painter = painterResource(if (pannier.orders.size == 0) R.drawable.cart_off else R.drawable.cart_on),
             contentDescription = null,
-            modifier = Modifier.size(40.dp),
-            //contentScale = ContentScale.Crop
+            modifier = Modifier
+                .size(40.dp)
+                .clickable(indication = null,interactionSource = remember { MutableInteractionSource() },)
+                { navController.navigate("cart") }
         )
     }
 }
@@ -236,8 +255,55 @@ fun SearchBar(
         }
     }
 }
+
 @Composable
-fun CategoriesSection() {
+fun SearchBarwithoutFilter(
+    searchText: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF5F5F5),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .border(
+                width = if (isFocused) 2.dp else 0.dp,
+                color = if (isFocused) Color(0xFFE3EBF2) else Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.search),
+            contentDescription = "Search Icon",
+            tint = Color(0xFFA0A5BA),
+            modifier = Modifier.size(24.dp)
+        )
+        TextField(
+            value = searchText,
+            onValueChange = onValueChange,
+            placeholder = { Text("Search restaurant...", fontFamily = Sen) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                unfocusedContainerColor = Color(0xFFF6F6F6),
+                focusedContainerColor = Color(0xFFF6F6F6),
+            ),
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged { isFocused = it.isFocused }
+        )
+
+
+    }
+}
+@Composable
+fun CategoriesSection(navController: NavController) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -250,7 +316,7 @@ fun CategoriesSection() {
                 fontFamily = Sen,
                 //fontWeight = FontWeight.Bold
             )
-            TextButton (onClick = { /* See all action */ }) {
+            TextButton (onClick = { navController.navigate("categorie") }) {
                 Row (
 
                     verticalAlignment = Alignment.CenterVertically,
@@ -331,13 +397,15 @@ fun PromotionBanner() {
             .background(Color(0xFFFFA500), shape = RoundedCornerShape(15.dp))
             .padding(25.dp)
     ) {
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(2f)) {
                 Text(
                     text = "Looking for great deals? \nCheck out our irresistible offers now!",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
+                    fontSize = 16.sp,
+                    fontFamily = Sen,
                 )
                 Button(
                     onClick = { /* Action du bouton */ },
@@ -345,8 +413,9 @@ fun PromotionBanner() {
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .width(150.dp)
+                        .clip(shape = RoundedCornerShape(16.dp))
                 ) {
-                    Text(text = "Order Now", color = Color.White)
+                    Text(text = "Order Now", color = Color.White, fontFamily = Sen)
                 }
             }
             Image(

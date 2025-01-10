@@ -61,34 +61,8 @@ fun SearchView() {
         }
 
         // Suggested Restaurants Section Header
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Suggested Restaurants",
-                    fontSize = 18.sp,
-                    fontFamily = Sen
-                )
-                TextButton(onClick = { /* See all action */ }) {
-                    Text(text = "See All")
-                }
-            }
-        }
-
-        // Suggested Restaurants Items
-        items(restaurants.take(4)) { restaurant ->
-            SuggestedRestaurantItem(restaurant = restaurant)
-            Divider(
-                color = Color.LightGray,
-                thickness = 0.5.dp,
-                modifier = Modifier.padding(vertical = 1.dp)
-            )
-        }
+        item{SuggestedRestaurants()}
+        item{SuggestedRestaurants()}
 
         // Popular Fast Food Section Header
         item {

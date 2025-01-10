@@ -3,6 +3,7 @@ package com.example.projet_tdm.screens.home.tabs
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -14,11 +15,16 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
+import com.example.projet_tdm.models.PannierSingleton
+import com.example.projet_tdm.models.getData
 import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -28,7 +34,7 @@ fun TrackTab(
     onBackClick: () -> Unit,
     driverNumber: String,
     restaurantName: String = "Uttora Coffee House",
-    orderDetails: String = "Ordered At 06 Sept, 10:00pm",
+    orderDetails: String = "Ordered At 15 jan, 16:00pm",
     deliveryTime: String = "20 min",
     statuses: List<Pair<String, Boolean>> = listOf(
         "Your order has been received" to false,
@@ -37,6 +43,24 @@ fun TrackTab(
         "Your Order is here!" to false
     )
 ) {
+
+    val context = LocalContext.current
+
+    // Initialize PannierSingleton when the screen is composed
+    LaunchedEffect(Unit) {
+        PannierSingleton.initialize(context)
+    }
+
+    // Access the pannier
+    val pannier = PannierSingleton.pannier
+
+    val restaurants = getData()
+    val pannierRestaurants = restaurants.filter { restaurant ->
+        pannier.orders.any { order ->
+            restaurant.menus.contains(order.item)
+        }}
+
+
     var currentStatuses by remember { mutableStateOf(statuses) }
     var timerRunning by remember { mutableStateOf(startTrackingTime) }
 
@@ -79,14 +103,16 @@ fun TrackTab(
                 )
             }
         },
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 80.dp)
         ) {
-            RestaurantInfo(restaurantName, orderDetails)
+           // RestaurantInfo(pannierRestaurants[0].name, orderDetails,pannierRestaurants[0].imgUrl)
             Spacer(modifier = Modifier.height(24.dp))
             currentStatuses.forEachIndexed { index, (status, isActive) ->
                 StatusItem(status, isActive)
@@ -101,20 +127,29 @@ fun TrackTab(
 }
 
 @Composable
-fun RestaurantInfo(restaurantName: String, orderDetails: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = restaurantName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+fun RestaurantInfo(restaurantName: String, orderDetails: String,image : Int) {
+    Row {
+        Image(
+            painter = painterResource(id = image),
+            contentDescription = "Restaurant Image",
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = orderDetails,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = restaurantName,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = orderDetails,
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        }
     }
 }
 

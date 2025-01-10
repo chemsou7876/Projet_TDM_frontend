@@ -17,7 +17,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.projet_tdm.R
-import com.example.projet_tdm.screens.home.tabs.CartTab
 import com.example.projet_tdm.screens.home.tabs.HomeTab
 import com.example.projet_tdm.screens.home.tabs.NotificationsTab
 import com.example.projet_tdm.screens.home.tabs.SearchTab

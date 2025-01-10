@@ -3,6 +3,7 @@ package com.example.projet_tdm.screens.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -234,7 +235,8 @@ fun FilterChip(label: String, selected: Boolean, onSelected: (Boolean) -> Unit) 
             .background(if (selected) Color(0xFFFFA500) else Color.Transparent)
             .border(1.dp,if (selected) Color(0x00FFA500) else Color(0xFFEDEDED), RoundedCornerShape(50))
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onSelected(!selected) }
+            .clickable(indication = null,interactionSource = remember { MutableInteractionSource() },)
+            { onSelected(!selected) }
 
     ) {
         Text(
@@ -252,7 +254,7 @@ fun RatingStar(selected: Boolean, onSelected: (Boolean) -> Unit) {
         imageVector = if (selected) Icons.Filled.Star else Icons.Outlined.Star,
         contentDescription = null,
         tint = if (selected) Color(0xFFFFA500) else Color.LightGray,
-        modifier = Modifier.clickable { onSelected(!selected) }
+        modifier = Modifier.clickable(indication = null,interactionSource = remember { MutableInteractionSource() },) { onSelected(!selected) }
     )
 }
 

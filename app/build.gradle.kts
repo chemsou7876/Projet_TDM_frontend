@@ -80,4 +80,5 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.google.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation("com.google.code.gson:gson:2.10.1")
 }

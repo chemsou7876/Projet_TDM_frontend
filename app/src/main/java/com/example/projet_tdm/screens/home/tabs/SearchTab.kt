@@ -2,6 +2,8 @@ package com.example.projet_tdm.screens.home.tabs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -38,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.models.PannierSingleton
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.home.tabs.SearchBar
@@ -53,12 +58,15 @@ fun SearchTab(navController: NavController) {
     ) {
         // Header
         item {
-            HeaderSearch()
+            HeaderSearch(navController)
         }
 
         // Search Bar
         item {
-            //  SearchBar(searchText, onValueChange = { null}) { newValue -> searchText = newValue }
+            SearchBarwithoutFilter(searchText = searchText, onValueChange = { newValue ->
+                searchText = newValue
+
+            },)
         }
 
         // Suggested Restaurants Section Header
@@ -76,7 +84,17 @@ fun SearchTab(navController: NavController) {
                     fontFamily = Sen
                 )
                 TextButton(onClick = { /* See all action */ }) {
-                    Text(text = "See All")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.arrow_right_simple),
+                            contentDescription = "Arrow Right Icon",
+                            modifier = Modifier.size(7.dp)
+                        )
+                    }
                 }
             }
         }
@@ -85,7 +103,7 @@ fun SearchTab(navController: NavController) {
         items(restaurants.take(4)) { restaurant ->
             SuggestedRestaurantItem(restaurant = restaurant)
             Divider(
-                color = Color.LightGray,
+                color = Color(0xFFE3EBF2),
                 thickness = 0.5.dp,
                 modifier = Modifier.padding(vertical = 1.dp)
             )
@@ -106,7 +124,17 @@ fun SearchTab(navController: NavController) {
                     fontFamily = Sen
                 )
                 TextButton(onClick = { /* See all action */ }) {
-                    Text(text = "See All")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.arrow_right_simple),
+                            contentDescription = "Arrow Right Icon",
+                            modifier = Modifier.size(7.dp)
+                        )
+                    }
                 }
             }
         }
@@ -139,38 +167,45 @@ fun SearchTab(navController: NavController) {
 }
 
 @Composable
-fun HeaderSearch(){
+fun HeaderSearch(navController: NavController){
+    val context = LocalContext.current
+
+    // Initialize PannierSingleton when the screen is composed
+    LaunchedEffect(Unit) {
+        PannierSingleton.initialize(context)
+    }
+
+    // Access the pannier
+    val pannier = PannierSingleton.pannier
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 45.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
+            .padding(top = 16.dp, bottom = 10.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
         ) {
-            Image(
-                painter = painterResource(R.drawable.back_icon),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp)
-            )
 
-            Spacer(modifier = Modifier.width(12.dp))
+
 
             Text(
                 text = "Search",
                 modifier = Modifier
                     .padding(top = 8.dp),
                 color = Color(0xFF303030),
-                fontSize = 18.sp,
-                fontFamily = Sen
+                fontSize = 20.sp,
+                fontFamily = Sen,
+                fontWeight = FontWeight.Bold,
             )
         }
         Image(
-            painter = painterResource(R.drawable.cart2_icon),
+            painter = painterResource(if (pannier.orders.size == 0) R.drawable.cart_off else R.drawable.cart_on),
             contentDescription = null,
-            modifier = Modifier.size(40.dp),
-            //contentScale = ContentScale.Crop
+            modifier = Modifier
+                .size(40.dp)
+                .clickable(indication = null,interactionSource = remember { MutableInteractionSource() },)
+                { navController.navigate("cart") }
         )
     }
 }
@@ -218,43 +253,6 @@ fun SuggestedRestaurantItem(restaurant: Restaurant){
     }
 }
 
-@Composable
-fun SuggestedRestaurants() {
-    val restaurants = getData()
-
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Suggested Restaurants",
-                fontSize = 18.sp,
-                //fontFamily = SenFont,
-                fontFamily = Sen,
-                //fontWeight = FontWeight.Bold
-            )
-            TextButton(onClick = { /* See all action */ }) {
-                Text(text = "See All")
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-            //.padding(vertical = 8.dp)
-        ) {
-            items(restaurants.take(4)) { restaurant ->
-                SuggestedRestaurantItem(restaurant = restaurant)
-                Divider(color = Color.LightGray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 1.dp))
-            }
-        }
-    }
-}
 
 
 @Composable
@@ -299,44 +297,3 @@ fun PopularFastFoodItem(restaurant: Restaurant) {
     }
 }
 
-@Composable
-fun PopularFastFoodGrid() {
-    val restaurants = getData()
-
-    // Extraire les éléments de l'indice 4 à 9 (non inclus)
-    val selectedRestaurants = if (restaurants.size > 9) {
-        restaurants.subList(4, 10) // Sous-liste des indices 4 à 8
-    } else {
-        restaurants.subList(4, restaurants.size) // Si la liste est plus petite
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Popular Fast Food",
-                fontSize = 18.sp,
-                fontFamily = Sen
-            )
-            TextButton(onClick = { /* See all action */ }) {
-                Text(text = "See All")
-            }
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // 2 items par ligne
-            modifier = Modifier.padding(3.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(selectedRestaurants) { restaurant ->
-                PopularFastFoodItem(restaurant = restaurant)
-            }
-        }
-    }
-}

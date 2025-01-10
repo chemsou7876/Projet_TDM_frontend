@@ -219,3 +219,9 @@ private fun saveLocation(context: Context, latitude: Double, longitude: Double) 
         apply()
     }
 }
+fun getLocationFromLocalStorage(context: Context): String {
+    val sharedPrefs = context.getSharedPreferences("location_prefs", Context.MODE_PRIVATE)
+    val latitude = sharedPrefs.getFloat("latitude", 0.0f)
+    val longitude = sharedPrefs.getFloat("longitude", 0.0f)
+    return "Lat: $latitude, Lng: $longitude"
+}
