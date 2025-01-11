@@ -5,10 +5,21 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call
+import retrofit2.http.PUT
 
 
 data class InfoRequest(
     val id: String?,
+)
+
+data class UpdateRequest(
+    val id: String?,
+    val name: String?,
+    val email: String?,
+    val profilePicture: String?,
+    val addresses: List<String>?,
+    val phoneNumber: String?,
+    val bio: String?,
 )
 
 data class InfoResponse(
@@ -32,6 +43,8 @@ data class InfoUser(
 interface InfoService {
     @POST("api/auth/userinfo")
     fun getInfo(@Body request: InfoRequest): Call<InfoResponse>
+    @PUT("api/auth/updateUserInfo")
+    fun updateInfo(@Body request: UpdateRequest):Call<InfoResponse>
 }
 
 

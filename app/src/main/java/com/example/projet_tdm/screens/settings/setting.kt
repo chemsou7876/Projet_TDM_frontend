@@ -54,10 +54,9 @@ fun Setting(navController: NavController){
     val context = LocalContext.current
     val defaultProfileImage = painterResource(id = R.drawable.profile_pic)
     val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
-    val userId = sharedPreferences.getString("user_id", null)
     val userName = sharedPreferences.getString("user_name", "No Name")
     val userEmail = sharedPreferences.getString("user_email", "No Email")
-    val userPhone = sharedPreferences.getString("user_phone", "No phone number")
+    val userPhone = sharedPreferences.getString("user_phoneNumber", "No phone number")
     val userBio = sharedPreferences.getString("user_bio", "Write your bio")
 
     Column(modifier = Modifier.padding(vertical = 10.dp , horizontal = 20.dp).fillMaxSize()
