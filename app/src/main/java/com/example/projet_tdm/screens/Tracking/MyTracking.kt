@@ -3,8 +3,10 @@ package com.example.projet_tdm.screens.Tracking
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,9 +30,12 @@ fun MyTracking(
     startTrackingTime: Boolean,
     onBackClick: () -> Unit,
     driverNumber: String,
-    restaurantName: String = "Uttora Coffee House",
-    orderDetails: String = "Ordered At 06 Sept, 10:00pm",
-    deliveryTime: String = "20 min",
+    restaurantName: String,
+    restaurantImage: Int,
+    orderDate: String,
+    orderTime: String,
+    orderItems: List<Pair<String, Int>>,
+    deliveryTime: String,
     statuses: List<Pair<String, Boolean>> = listOf(
         "Your order has been received" to false,
         "The restaurant is preparing your food" to false,
@@ -79,42 +85,81 @@ fun MyTracking(
                 )
             }
         },
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 80.dp)
         ) {
-            RestaurantInfo(restaurantName, orderDetails)
+            RestaurantInfo(restaurantName, restaurantImage, orderDate, orderTime, orderItems)
+            EstimatedDeliveryTime(deliveryTime)
             Spacer(modifier = Modifier.height(24.dp))
             currentStatuses.forEachIndexed { index, (status, isActive) ->
                 StatusItem(status, isActive)
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
-            EstimatedDeliveryTime(deliveryTime)
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
             DriverInfo(driverNumber)
         }
     }
 }
 
 @Composable
-fun RestaurantInfo(restaurantName: String, orderDetails: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = restaurantName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = orderDetails,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
+fun RestaurantInfo(
+    restaurantName: String,
+    restaurantImage: Int,
+    orderDate: String,
+    orderTime: String,
+    orderItems: List<Pair<String, Int>>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(id = restaurantImage),
+                contentDescription = "Restaurant Image",
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(Color.Gray, shape = CircleShape)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = restaurantName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Ordered on $orderDate at $orderTime",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                orderItems.forEach { (item, quantity) ->
+                    Text(
+                        text = "$item x $quantity",
+                        fontSize = 14.sp,
+                        color = Color.Black
+
+                    )
+                }
+
+            }
+        }
+
     }
 }
 

@@ -11,7 +11,10 @@ class MainActivity : ComponentActivity() {
     // Constantes simulant les données reçues du backend
     private val driverNumber = "1234567890"
     private val restaurantName = "Uttora Coffee House"
-    private val orderDetails = "Ordered at 06 Sept, 10:00pm"
+    private val restaurantImage = R.drawable.home // Exemple d'image
+    private val orderDate = "06 Sept"
+    private val orderTime = "10:00pm"
+    private val orderItems = listOf("Burger" to 2, "Fries" to 1)
     private val estimatedDeliveryTime = "30 min"
 
     // Statuts simulés du backend
@@ -33,7 +36,10 @@ class MainActivity : ComponentActivity() {
                 onBackClick = { handleBackClick() },  // Gestion du bouton retour
                 driverNumber = driverNumber,
                 restaurantName = restaurantName,
-                orderDetails = orderDetails,
+                restaurantImage = restaurantImage,
+                orderDate = orderDate,
+                orderTime = orderTime,
+                orderItems = orderItems,
                 deliveryTime = estimatedDeliveryTime,
                 statuses = statusesFromBackend
             )
