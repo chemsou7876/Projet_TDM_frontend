@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.http.Query
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -22,7 +23,7 @@ data class NotificationResponse(
 // Retrofit interface
 interface NotificationApi {
     @GET("api/notifications/")
-    suspend fun getNotifications(): List<NotificationResponse>
+    suspend fun getNotifications(@Query("userId") userId: String): List<NotificationResponse>
 }
 
 // Service class for handling notifications fetching and mapping
@@ -38,11 +39,11 @@ object NotificationService {
 
     // Fetch notifications and map them to the app model
     @SuppressLint("NewApi")
-    suspend fun fetchNotifications(): List<com.example.projet_tdm.models.Notification> {
+    suspend fun fetchNotifications(userId: String): List<com.example.projet_tdm.models.Notification> {
         return withContext(Dispatchers.IO) {
             try {
                 // Fetch notifications from the API
-                val notificationsResponse = notificationApi.getNotifications()
+                val notificationsResponse = notificationApi.getNotifications(userId)
                 println("Notifications fetched successfully: $notificationsResponse")
 
                 // Map backend notifications to app notifications

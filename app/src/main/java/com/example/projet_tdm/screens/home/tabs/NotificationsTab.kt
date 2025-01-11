@@ -1,12 +1,12 @@
 package com.example.projet_tdm.screens.home.tabs
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
@@ -17,48 +17,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projet_tdm.R
 import com.example.projet_tdm.services.NotificationService
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
+
 @SuppressLint("NewApi")
 @Composable
 fun NotificationsTab() {
+    val currentUserId = "67706b68666690c71ecd7191b"
     var notifications by remember { mutableStateOf<List<com.example.projet_tdm.models.Notification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     // State for LazyColumn to manage scroll position
     val listState = rememberLazyListState()
 
-    // Fetch notifications when the composable is first created
 
-    // Function to fetch notifications
-    suspend fun fetchNotifications() {
-        try {
-            // Simulate fetching new notifications (Replace this with real API call)
-            notifications = NotificationService.fetchNotifications()
-            println("Fetched notifications: $notifications")
-        } catch (e: Exception) {
-            println("Error fetching notifications: ${e.message}")
-        } finally {
-            isLoading = false
-        }
+    suspend fun fetchNotifications(userId: String) = try {
+        // Make a network call to fetch notifications for the specific user
+        val fetchedNotifications = NotificationService.fetchNotifications(userId)
+        // Update notifications state to trigger recomposition
+        notifications = fetchedNotifications
+        println("Fetched notifications for user $userId: $notifications")
+    } catch (e: Exception) {
+        println("Error fetching notifications: ${e.message}")
+    } finally {
+        isLoading = false
     }
     LaunchedEffect(Unit) {
-        fetchNotifications()
+        fetchNotifications(currentUserId)
     }
 
     LaunchedEffect(listState.firstVisibleItemIndex) {
         if (listState.firstVisibleItemIndex == 0 && !isLoading) {
             println("Scrolled to the top, refreshing notifications...")
             isLoading = true  // Set loading state to true
-            fetchNotifications()  // Fetch the new notifications
+            fetchNotifications(currentUserId)  // Fetch the new notifications
         }
     }
 
@@ -83,37 +82,63 @@ fun NotificationsTab() {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.padding((8.dp)).fillMaxSize()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = R.drawable.back_icon),
+                contentDescription = "Default Profile Image",
+                modifier = Modifier.size(55.dp).clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                   // navController.navigate("settings") // Navigate to the HomeScreen when clicked
+                },
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(text ="Notifications",
+                fontSize = 22.sp)
+
+        }
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(40.dp)
                     .align(Alignment.CenterHorizontally)
+                    , color = Color(0xFFFF7622)
             )
         } else {
-            LazyColumn(
-                state = listState, // Pass the scroll state
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                groupedNotifications.forEach { (displayDate, notificationsOnSameDay) ->
-                    item {
-                        Text(
-                            text = displayDate,
-                            fontSize = 14.sp,
-                            color = Color.Gray,  // Customize the style here
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-
-                    notificationsOnSameDay.forEach { notification ->
+            if(notifications.isEmpty())
+            {
+                Column (modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("You have no notifications !! " , color = Color(0xFFFF7622) , fontWeight = FontWeight.Bold , fontSize = 15.sp)
+                }
+            }
+            else {
+                LazyColumn(
+                    state = listState, // Pass the scroll state
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    groupedNotifications.forEach { (displayDate, notificationsOnSameDay) ->
                         item {
-                            NotificationCard(
-                                notification.text,
-                                pic = notification.pic
+                            Text(
+                                text = displayDate,
+                                fontSize = 14.sp,
+                                color = Color.Gray,  // Customize the style here
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
-                            Spacer(modifier = Modifier.height(15.dp))
+                        }
+
+                        notificationsOnSameDay.forEach { notification ->
+                            item {
+                                NotificationCard(
+                                    notification.text,
+                                    pic = notification.pic
+                                )
+                                Spacer(modifier = Modifier.height(15.dp))
+                            }
                         }
                     }
                 }
