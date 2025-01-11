@@ -1,17 +1,23 @@
 package com.example.projet_tdm.services
 
+import android.annotation.SuppressLint
 import com.example.projet_tdm.R
+import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
+// Response data from backend API
 data class NotificationResponse(
-    val id: Int,
+    @SerializedName("_id") val id: String, // Map MongoDB _id to id field
     val text: String,
-    val date: String,
+    val date: String, // ISO 8601 format
 )
+
 
 // Retrofit interface
 interface NotificationApi {
@@ -19,7 +25,7 @@ interface NotificationApi {
     suspend fun getNotifications(): List<NotificationResponse>
 }
 
-// Service class
+// Service class for handling notifications fetching and mapping
 object NotificationService {
     private const val BASE_URL = "https://deliveryfood-backend-yyxy.onrender.com/"
 
@@ -30,19 +36,36 @@ object NotificationService {
 
     private val notificationApi = retrofit.create(NotificationApi::class.java)
 
+    // Fetch notifications and map them to the app model
+    @SuppressLint("NewApi")
     suspend fun fetchNotifications(): List<com.example.projet_tdm.models.Notification> {
         return withContext(Dispatchers.IO) {
             try {
-                notificationApi.getNotifications().map { response ->
+                // Fetch notifications from the API
+                val notificationsResponse = notificationApi.getNotifications()
+                println("Notifications fetched successfully: $notificationsResponse")
+
+                // Map backend notifications to app notifications
+                notificationsResponse.map { response ->
+                    // Parse the date string if needed (optional based on your usage)
+                    val parsedDate = try {
+                        OffsetDateTime.parse(response.date).toLocalDate()
+                    } catch (e: Exception) {
+                        // Fallback date if parsing fails
+                        println("Error parsing date for notification ID ${response.id}: ${e.localizedMessage}")
+                        null
+                    }
                     com.example.projet_tdm.models.Notification(
-                        id = response.id,
+                        id = response.id, // _id from MongoDB
                         text = response.text,
-                        date = response.date,
+                        date = parsedDate?.toString() ?: response.date, // Use parsed date or fallback date string
                         pic = R.drawable.profile_pic
                     )
                 }
             } catch (e: Exception) {
-                // Handle error appropriately
+                // Catch any error during the fetch operation
+                println("Error fetching notifications: ${e.localizedMessage}")
+                e.printStackTrace()
                 emptyList()
             }
         }

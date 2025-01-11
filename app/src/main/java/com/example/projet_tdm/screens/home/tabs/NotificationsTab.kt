@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
@@ -26,43 +27,61 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-
-
 @SuppressLint("NewApi")
 @Composable
 fun NotificationsTab() {
     var notifications by remember { mutableStateOf<List<com.example.projet_tdm.models.Notification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
+    // State for LazyColumn to manage scroll position
+    val listState = rememberLazyListState()
+
     // Fetch notifications when the composable is first created
-    LaunchedEffect(Unit) {
+
+    // Function to fetch notifications
+    suspend fun fetchNotifications() {
         try {
+            // Simulate fetching new notifications (Replace this with real API call)
             notifications = NotificationService.fetchNotifications()
-            print(notifications)
+            println("Fetched notifications: $notifications")
         } catch (e: Exception) {
-           print("a prblm in notifications ! ")
+            println("Error fetching notifications: ${e.message}")
         } finally {
             isLoading = false
         }
     }
+    LaunchedEffect(Unit) {
+        fetchNotifications()
+    }
 
-    val groupedNotifications = notifications.groupBy { it.date }
-    val sortedGroupedNotifications = groupedNotifications.toSortedMap(
-        compareByDescending { date ->
-            try {
-                // Parse ISO 8601 date format
-                OffsetDateTime.parse(date).toLocalDate()
-            } catch (e: Exception) {
-                // Fallback for dd-MM-yyyy format
-                try {
-                    LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                } catch (e: Exception) {
-                    // If both parsing attempts fail, use epoch date as fallback
-                    LocalDate.EPOCH
-                }
-            }
+    LaunchedEffect(listState.firstVisibleItemIndex) {
+        if (listState.firstVisibleItemIndex == 0 && !isLoading) {
+            println("Scrolled to the top, refreshing notifications...")
+            isLoading = true  // Set loading state to true
+            fetchNotifications()  // Fetch the new notifications
         }
-    )
+    }
+
+
+    val groupedNotifications = notifications.groupBy { notification ->
+        try {
+            // Parse notification date using "yyyy-MM-dd" format
+            val parsedDate = LocalDate.parse(notification.date)
+
+            val todayLocalDate = LocalDate.now()
+            val yesterdayLocalDate = todayLocalDate.minusDays(1)
+
+            // Handle "Today" and "Yesterday"
+            when {
+                parsedDate.isEqual(todayLocalDate) -> "Today"
+                parsedDate.isEqual(yesterdayLocalDate) -> "Yesterday"
+                else -> parsedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // Custom format (yyyy-MM-dd)
+            }
+        } catch (e: Exception) {
+            // In case of an error, return the original date string
+            notification.date
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
@@ -73,36 +92,28 @@ fun NotificationsTab() {
             )
         } else {
             LazyColumn(
+                state = listState, // Pass the scroll state
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                sortedGroupedNotifications.forEach { (date, notificationList) ->
+                groupedNotifications.forEach { (displayDate, notificationsOnSameDay) ->
                     item {
-                        val displayDate = try {
-                            // Parse ISO 8601 date
-                            val parsedDate = OffsetDateTime.parse(date).toLocalDate()
-                            val today = LocalDate.now()
-                            when {
-                                parsedDate == today -> "Today"
-                                parsedDate == today.minusDays(1) -> "Yesterday"
-                                else -> parsedDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                            }
-                        } catch (e: Exception) {
-                            // If parsing fails, just display the original date string
-                            date
-                        }
-
                         Text(
                             text = displayDate,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 12.dp)
+                            fontSize = 14.sp,
+                            color = Color.Gray,  // Customize the style here
+                            modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
 
-                    items(notificationList) { notification ->
-                        Column(modifier = Modifier.padding(vertical = 5.dp)) {
-                            NotificationCard(notification.text, pic = notification.pic)
+                    notificationsOnSameDay.forEach { notification ->
+                        item {
+                            NotificationCard(
+                                notification.text,
+                                pic = notification.pic
+                            )
+                            Spacer(modifier = Modifier.height(15.dp))
                         }
                     }
                 }
@@ -110,19 +121,25 @@ fun NotificationsTab() {
         }
     }
 }
+
+
+
 @Composable
-fun NotificationCard(text:String , pic: Int){
-   Row (modifier = Modifier.fillMaxWidth()
-       .clip(shape = RoundedCornerShape(12.dp))
-       .background(color = Color(0xFFFFF0EA))
-       .padding(vertical = 15.dp , horizontal = 6.dp)
-       , verticalAlignment = Alignment.CenterVertically) {
-       Image(
-           painter = painterResource(id = pic),
-           contentDescription = "Default Notification Image",
-           modifier = Modifier.size(40.dp)
-       )
-       Spacer(modifier = Modifier.width(10.dp))
-       Text(text, fontSize = 16.sp)
-   }
+fun NotificationCard(text: String, pic: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(12.dp))
+            .background(color = Color(0xFFFFF0EA))
+            .padding(vertical = 15.dp, horizontal = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = pic),
+            contentDescription = "Default Notification Image",
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text, fontSize = 16.sp)
+    }
 }
