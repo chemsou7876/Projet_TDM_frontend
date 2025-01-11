@@ -24,6 +24,9 @@ import com.example.projet_tdm.R
 import com.example.projet_tdm.components.CustomTextField
 import com.example.projet_tdm.components.PasswordField
 import com.example.projet_tdm.services.ApiClient
+import com.example.projet_tdm.services.ApiInfoClient
+import com.example.projet_tdm.services.InfoRequest
+import com.example.projet_tdm.services.InfoResponse
 import com.example.projet_tdm.services.LoginRequest
 import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UserSession
@@ -31,6 +34,10 @@ import com.example.projet_tdm.ui.theme.Sen
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
+private fun <T> Call<T>.enqueue(callback: Callback<T>, function: () -> Unit) {
+
+}
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -40,6 +47,7 @@ fun LoginScreen(navController: NavController) {
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
     var loginMessage by remember { mutableStateOf("") }
+    var infoMessage by remember { mutableStateOf("") }
     var isLoginInProgress by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
@@ -84,7 +92,60 @@ fun LoginScreen(navController: NavController) {
             }
         }
     }
+    fun getInfo(context : Context , id:String?){
+        val infoService = ApiInfoClient.authService
+        val request = InfoRequest(id = id)
+        println("request")
+        println(request)
+        infoService.getInfo(request).enqueue(object: Callback<InfoResponse>{
+            override fun onResponse(call: Call<InfoResponse>, response: Response<InfoResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    println(result)
+                    if (result?.user != null) {
+                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                        val editor = sharedPreferences.edit()
 
+                        editor.putBoolean("is_logged_in", true)
+                        editor.putString("user_id", id)
+                        editor.putString("user_name", result.user.name)
+                        editor.putString("user_email", result.user.email)
+                       // editor.putString("user_addresses", result.user.addresses)
+                        editor.putString("user_phoneNumber", result.user.phoneNumber)
+                        editor.putString("user_profilePicture", result.user.profilePicture)
+                        editor.putString("user_bio", result.user.bio)
+                        editor.apply()
+
+                        println("here are some infos")
+                        println(id)
+                        println(result.user.email)
+                        println(result.user.bio)
+
+                    } else {
+                        infoMessage = "Login Failed: ${result?.message}"
+                    }
+                } else {
+                    println("Response code: ${response.code()}")
+                    println("Error body: ${response.errorBody()?.string()}")
+
+                    val errorJson = response.errorBody()?.string() // Parse error body as string
+                    try {
+                        val gson = com.google.gson.Gson()
+                        val errorResponse = gson.fromJson(errorJson, LoginResponse::class.java)
+                        infoMessage = "Error: ${errorResponse.message}"
+                    } catch (e: Exception) {
+                        infoMessage = "fetching info Failed: ${response.message()}"
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<InfoResponse>, t: Throwable) {
+                infoMessage = "Network error: ${t.message}"
+            }
+        })
+
+        println(infoMessage)
+    }
     fun login(context: Context) {
         val authService = ApiClient.authService
         val request = LoginRequest(email = email, password = password)
@@ -103,13 +164,9 @@ fun LoginScreen(navController: NavController) {
                         UserSession.isLoggedIn = true
                         loginMessage = "Login Successful!"
 
-                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
-                        val editor = sharedPreferences.edit()
-
-                        editor.putBoolean("is_logged_in", true)
-                        editor.putString("user_id", result.user.id)
-                        editor.apply()
-
+                        getInfo(context ,result.user.id )
+                        println("it worked ")
+                        println(UserSession.userId)
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -142,9 +199,6 @@ fun LoginScreen(navController: NavController) {
         })
         isLoginInProgress = false
     }
-
-
-
 
         Column(
         modifier = Modifier
