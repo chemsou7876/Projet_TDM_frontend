@@ -1,5 +1,6 @@
 package com.example.projet_tdm.screens.settings
 
+import android.content.Context
 import android.text.Layout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,9 +37,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
+import com.example.projet_tdm.services.UserSession
 
+fun logout(context: Context, navController:NavController) {
+    // Clear UserSession
+    UserSession.userId = null
+    UserSession.isLoggedIn = false
+
+    // Clear SharedPreferences
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.clear()  // Removes all stored data in "user_session"
+    editor.apply()
+
+    navController.navigate("onboarding") {
+        popUpTo("home") { inclusive = true }
+    }
+}
 @Composable
 fun Setting(navController: NavController){
+    val context = LocalContext.current
     val defaultProfileImage = painterResource(id = R.drawable.profile_pic)
 
     Column(modifier = Modifier.padding(vertical = 10.dp , horizontal = 20.dp).fillMaxSize()
@@ -217,7 +236,8 @@ fun Setting(navController: NavController){
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                navController.navigate("login")
+
+                logout(context = context, navController)
             }
 
         ){

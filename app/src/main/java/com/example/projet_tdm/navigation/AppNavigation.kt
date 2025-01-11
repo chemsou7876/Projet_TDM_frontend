@@ -31,7 +31,7 @@ import com.example.projet_tdm.screens.settings.Setting
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "splash") {
         composable("splash") { SplashScreen(navController) }
         composable("onboarding") { OnboardingScreen(navController) }
         composable("login") { LoginScreen(navController) }

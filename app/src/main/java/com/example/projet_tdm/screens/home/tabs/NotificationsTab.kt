@@ -1,6 +1,7 @@
 package com.example.projet_tdm.screens.home.tabs
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,30 +19,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projet_tdm.R
 import com.example.projet_tdm.services.NotificationService
+import com.example.projet_tdm.services.UserSession
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @SuppressLint("NewApi")
 @Composable
 fun NotificationsTab() {
-    val currentUserId = "67706b68666690c71ecd7191b"
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val userId= sharedPreferences.getString("user_id", null)  // Return null if not found
+
+    val currentUserId = userId
     var notifications by remember { mutableStateOf<List<com.example.projet_tdm.models.Notification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // State for LazyColumn to manage scroll position
     val listState = rememberLazyListState()
 
 
     suspend fun fetchNotifications(userId: String) = try {
-        // Make a network call to fetch notifications for the specific user
         val fetchedNotifications = NotificationService.fetchNotifications(userId)
-        // Update notifications state to trigger recomposition
         notifications = fetchedNotifications
         println("Fetched notifications for user $userId: $notifications")
     } catch (e: Exception) {
@@ -50,14 +54,20 @@ fun NotificationsTab() {
         isLoading = false
     }
     LaunchedEffect(Unit) {
-        fetchNotifications(currentUserId)
+        if (currentUserId != null) {
+            fetchNotifications(currentUserId)
+        }
     }
 
     LaunchedEffect(listState.firstVisibleItemIndex) {
         if (listState.firstVisibleItemIndex == 0 && !isLoading) {
             println("Scrolled to the top, refreshing notifications...")
             isLoading = true  // Set loading state to true
-            fetchNotifications(currentUserId)  // Fetch the new notifications
+
+            if (currentUserId != null) {
+                fetchNotifications(currentUserId)
+            }
+
         }
     }
 
