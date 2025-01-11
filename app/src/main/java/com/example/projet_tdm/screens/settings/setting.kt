@@ -1,10 +1,8 @@
 package com.example.projet_tdm.screens.settings
 
 import android.content.Context
-import android.text.Layout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
 import com.example.projet_tdm.services.UserSession
 
@@ -54,10 +48,16 @@ fun logout(context: Context, navController:NavController) {
         popUpTo("home") { inclusive = true }
     }
 }
+
 @Composable
 fun Setting(navController: NavController){
     val context = LocalContext.current
     val defaultProfileImage = painterResource(id = R.drawable.profile_pic)
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val userName = sharedPreferences.getString("user_name", "No Name")
+    val userEmail = sharedPreferences.getString("user_email", "No Email")
+    val userPhone = sharedPreferences.getString("user_phoneNumber", "No phone number")
+    val userBio = sharedPreferences.getString("user_bio", "Write your bio")
 
     Column(modifier = Modifier.padding(vertical = 10.dp , horizontal = 20.dp).fillMaxSize()
         //   .verticalScroll(scrollState) ,
@@ -107,9 +107,13 @@ fun Setting(navController: NavController){
             )
             Spacer(modifier = Modifier.width(15.dp))
             Column (){
-                Text("Vishal Khadok", fontSize = 20.sp, fontWeight = FontWeight.W700)
+                if (userName != null) {
+                    Text(userName, fontSize = 20.sp, fontWeight = FontWeight.W700)
+                }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("I love fast food")
+                if (userBio != null) {
+                    Text(userBio)
+                }
             } }
 
         Column (modifier = Modifier
@@ -129,7 +133,9 @@ fun Setting(navController: NavController){
                 Column (){
                     Text("FULL NAME", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("I love fast food")
+                    if (userName != null) {
+                        Text(userName)
+                    }
                 } }
             Spacer(modifier = Modifier.height(15.dp))
             Row(verticalAlignment = Alignment.CenterVertically){
@@ -143,7 +149,9 @@ fun Setting(navController: NavController){
                 Column (){
                     Text("EMAIL", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("I love fast food")
+                    if (userEmail != null) {
+                        Text(userEmail)
+                    }
                 } }
             Spacer(modifier = Modifier.height(15.dp))
 
@@ -158,7 +166,9 @@ fun Setting(navController: NavController){
                 Column (){
                     Text("PHONE NUMBER", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("I love fast food")
+                    if (userPhone != null) {
+                        Text(userPhone)
+                    }
                 } }
         }
 
