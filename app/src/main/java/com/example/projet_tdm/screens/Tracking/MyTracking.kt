@@ -150,7 +150,7 @@ fun RestaurantInfo(
                 Spacer(modifier = Modifier.height(8.dp))
                 orderItems.forEach { (item, quantity) ->
                     Text(
-                        text = "$item x $quantity",
+                        text = "$quantity x $item",
                         fontSize = 14.sp,
                         color = Color.Black
 
