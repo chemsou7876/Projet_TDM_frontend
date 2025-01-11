@@ -22,10 +22,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import androidx.core.app.NotificationCompat
 import com.example.projet_tdm.models.PannierSingleton
-import com.example.projet_tdm.models.getData
 import kotlinx.coroutines.delay
+import com.example.projet_tdm.R
+import com.example.projet_tdm.services.NotificationService
+import com.example.projet_tdm.services.createNotificationChannel
+import com.example.projet_tdm.services.sendNotification
+import kotlinx.coroutines.launch
+
+
+val notificationChannelId = "order_status_channel"
+val notificationChannelName = "Order Status Updates"
+val notificationChannelDescription = "Notifications for order status updates"
+
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -43,44 +58,60 @@ fun TrackTab(
         "Your Order is here!" to false
     )
 ) {
-
     val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getString("user_id", "null")
 
-    // Initialize PannierSingleton when the screen is composed
+    // Initialize PannierSingleton
     LaunchedEffect(Unit) {
         PannierSingleton.initialize(context)
     }
 
-    // Access the pannier
-    val pannier = PannierSingleton.pannier
-
-    val restaurants = getData()
-    val pannierRestaurants = restaurants.filter { restaurant ->
-        pannier.orders.any { order ->
-            restaurant.menus.contains(order.item)
-        }}
-
+    // Create Notification Channel
+    createNotificationChannel(context)
 
     var currentStatuses by remember { mutableStateOf(statuses) }
     var timerRunning by remember { mutableStateOf(startTrackingTime) }
+    val scope = rememberCoroutineScope()
+    val orderId = "67807e4d1a6a3db3b27c68b8"
 
-    // Durée des étapes (en secondes)
-    val stepDurations = listOf(5, 5, 5, 5)
+
+    // Durée des étapes
+    val stepDurations = listOf(5, 5, 5, 5) // durations in seconds
 
     // Gestion du suivi des étapes
     LaunchedEffect(timerRunning) {
+        val notifiedStatuses = mutableSetOf<String>()
         if (timerRunning) {
             for (i in currentStatuses.indices) {
                 delay(stepDurations[i] * 1000L)
 
                 currentStatuses = currentStatuses.mapIndexed { index, pair ->
-                    if (index <= i) pair.copy(second = true) else pair
+                    if (index <= i) {
+                        val updatedStatus = pair.copy(second = true)
+                        sendNotification(context, updatedStatus.first, index) // Send notification
+
+                        scope.launch {
+                            if (userId != null && !notifiedStatuses.contains(updatedStatus.first)) {
+                                // Send notification only if it hasn't been sent for this status
+                                try {
+                                    NotificationService.sendStatusUpdateNotification(orderId, updatedStatus.first, userId)
+                                    notifiedStatuses.add(updatedStatus.first) // Mark status as notified
+                                } catch (e: Exception) {
+                                    println("Error sending status update notification: ${e.localizedMessage}")
+                                }
+                            }
+                        }
+
+                        updatedStatus
+                    } else pair
                 }
             }
         }
     }
 
     Scaffold(
+
         topBar = {
             Row(
                 modifier = Modifier
@@ -112,7 +143,6 @@ fun TrackTab(
                 .fillMaxSize()
                 .padding(top = 80.dp)
         ) {
-           // RestaurantInfo(pannierRestaurants[0].name, orderDetails,pannierRestaurants[0].imgUrl)
             Spacer(modifier = Modifier.height(24.dp))
             currentStatuses.forEachIndexed { index, (status, isActive) ->
                 StatusItem(status, isActive)
@@ -125,6 +155,7 @@ fun TrackTab(
         }
     }
 }
+
 
 @Composable
 fun RestaurantInfo(restaurantName: String, orderDetails: String,image : Int) {
