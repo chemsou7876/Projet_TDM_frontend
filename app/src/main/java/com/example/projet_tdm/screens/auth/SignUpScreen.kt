@@ -1,5 +1,6 @@
 package com.example.projet_tdm.screens.auth
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,7 +29,17 @@ import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.components.CustomTextField
 import com.example.projet_tdm.components.PasswordField
+import com.example.projet_tdm.services.ApiClient
+import com.example.projet_tdm.services.ApiNewClient
+import com.example.projet_tdm.services.LoginRequest
+import com.example.projet_tdm.services.LoginResponse
+import com.example.projet_tdm.services.SignupRequest
+import com.example.projet_tdm.services.SignupResponse
+import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.ui.theme.Sen
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -35,6 +47,7 @@ fun SignUpScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var loginMessage by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
@@ -43,6 +56,8 @@ fun SignUpScreen(navController: NavController) {
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+
 
     val orangeColor = Color(0xFFFF7622)
 
@@ -63,7 +78,6 @@ fun SignUpScreen(navController: NavController) {
             }
         }
     }
-
     fun validateEmail(): Boolean {
         val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
         return when {
@@ -81,7 +95,6 @@ fun SignUpScreen(navController: NavController) {
             }
         }
     }
-
     fun validatePassword(): Boolean {
         return when {
             password.isEmpty() -> {
@@ -110,7 +123,6 @@ fun SignUpScreen(navController: NavController) {
             }
         }
     }
-
     fun validateConfirmPassword(): Boolean {
         return when {
             confirmPassword.isEmpty() -> {
@@ -127,7 +139,6 @@ fun SignUpScreen(navController: NavController) {
             }
         }
     }
-
     fun validateForm(): Boolean {
 //        val isNameValid = validateName()
 //        val isEmailValid = validateEmail()
@@ -136,6 +147,49 @@ fun SignUpScreen(navController: NavController) {
 //
 //        return isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
         return true
+    }
+   fun signup(context: Context) {
+        val signupService = ApiNewClient.authService
+        val request = SignupRequest(email = email, name = name ,password = password ,confirmPassword= confirmPassword )
+        signupService.signup(request).enqueue((object : Callback<SignupResponse> {
+            override fun onResponse(call: Call<SignupResponse>, response: Response<SignupResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+
+                    if (result?.message == "User created successfully") {
+                        UserSession.userId = result.id
+                        UserSession.isLoggedIn = true
+                        loginMessage = "Login Successful!"
+
+                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                        val editor = sharedPreferences.edit()
+
+                        editor.putBoolean("is_logged_in", true)
+                        editor.putString("user_id", result.id)
+                        editor.apply()
+
+                        navController.navigate("upload_profile") {
+                            popUpTo("signup") { inclusive = true }
+                        }
+                    } else {
+                        loginMessage = "Signup Failed: ${result?.message}"
+                    }
+                } else {
+                    val errorJson = response.errorBody()?.string() // Parse error body as string
+                    try {
+                        val gson = com.google.gson.Gson()
+                        val errorResponse = gson.fromJson(errorJson, LoginResponse::class.java)
+                        loginMessage = "Error: ${errorResponse.message}"
+                    } catch (e: Exception) {
+                        loginMessage = "Sign Up Failed: ${response.message()}"
+                    }
+                }
+            }
+            override fun onFailure(call: Call<SignupResponse>, t: Throwable) {
+                loginMessage = "Network error: ${t.message}"
+            }
+
+        }))
     }
 
 
@@ -253,7 +307,8 @@ fun SignUpScreen(navController: NavController) {
             // Sign Up Button
             Button(
                 onClick = {  if (validateForm()) {
-                    navController.navigate("upload_profile")
+                    signup(context)
+
                 } },
                 modifier = Modifier
                     .fillMaxWidth()
