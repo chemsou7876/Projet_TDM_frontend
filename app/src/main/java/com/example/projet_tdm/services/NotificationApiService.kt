@@ -1,6 +1,10 @@
 package com.example.projet_tdm.services
 
 import android.annotation.SuppressLint
+import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.example.projet_tdm.R
 import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
@@ -8,6 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.http.Body
+import retrofit2.http.POST
 import retrofit2.http.Query
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -19,11 +25,20 @@ data class NotificationResponse(
     val date: String, // ISO 8601 format
 )
 
+data class NotificationRequest(
+    val text: String,
+    val orderId: String,
+    val userId: String
+)
+
 
 // Retrofit interface
 interface NotificationApi {
     @GET("api/notifications/")
     suspend fun getNotifications(@Query("userId") userId: String): List<NotificationResponse>
+
+    @POST("api/notifications/")
+    suspend fun sendNotification(@Body notification: NotificationRequest): NotificationResponse
 }
 
 // Service class for handling notifications fetching and mapping
@@ -68,6 +83,24 @@ object NotificationService {
                 println("Error fetching notifications: ${e.localizedMessage}")
                 e.printStackTrace()
                 emptyList()
+            }
+        }
+    }
+
+    suspend fun sendStatusUpdateNotification(orderId: String, status: String, id:String) {
+        println(orderId)
+        println(id)
+        println(status)
+        val notification = NotificationRequest(status , orderId,  id)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = notificationApi.sendNotification(notification)
+                println("Notification sent successfully: ${response.text}")
+            } catch (e: Exception) {
+                // Catch any error during the sending operation
+                println("Error sending notification: ${e.localizedMessage}")
+                e.printStackTrace()
             }
         }
     }
