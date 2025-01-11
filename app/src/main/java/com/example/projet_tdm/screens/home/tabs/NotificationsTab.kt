@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,8 +20,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projet_tdm.R
+import com.example.projet_tdm.services.NotificationService
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -28,86 +31,85 @@ import java.time.temporal.ChronoUnit
 @SuppressLint("NewApi")
 @Composable
 fun NotificationsTab() {
-    val notifications = listOf(
-        com.example.projet_tdm.models.Notification(
-            2,
-            "Offer: 50% Discount!",
-            "01-01-2025",
-            R.drawable.ic_edit
-        ),
-        com.example.projet_tdm.models.Notification(
-            3,
-            "Reminder: Buy Groceries",
-            "02-01-2025",
-            R.drawable.profile_pic
-        ),
-        com.example.projet_tdm.models.Notification(
-            6,
-            "Reminder: Buy Groceries , Reminder: Buy Groceries , Reminder: Buy Groceries Reminder: Buy Groceries Reminder: Buy Groceries",
-            "02-01-2025",
-            R.drawable.profile_pic
-        ),
-        com.example.projet_tdm.models.Notification(
-            4,
-            "New Message Received",
-            "05-01-2025",
-            R.drawable.ic_pen
-        ),
-        com.example.projet_tdm.models.Notification(
-            5,
-            "Event: Conference Tomorrow",
-            "06-01-2025",
-            R.drawable.ic_pen
-        ),
+    var notifications by remember { mutableStateOf<List<com.example.projet_tdm.models.Notification>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
-        com.example.projet_tdm.models.Notification(
-            1,
-            "Meeting at 5 PM",
-            "06-01-2025",
-            R.drawable.profile_pic 
-        ),
-    )
+    // Fetch notifications when the composable is first created
+    LaunchedEffect(Unit) {
+        try {
+            notifications = NotificationService.fetchNotifications()
+            print(notifications)
+        } catch (e: Exception) {
+           print("a prblm in notifications ! ")
+        } finally {
+            isLoading = false
+        }
+    }
+
     val groupedNotifications = notifications.groupBy { it.date }
     val sortedGroupedNotifications = groupedNotifications.toSortedMap(
-        compareByDescending { SimpleDateFormat("dd-MM-yyyy").parse(it) }
-    )
-
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            sortedGroupedNotifications.forEach { (date, notificationList) ->
-                item {
-                    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-                    val parsedDate = LocalDate.parse(date, formatter)
-                    val today = LocalDate.now()
-                    val textToDisplay = when {
-                        parsedDate == today -> "Today"
-                        parsedDate == today.minus(1, ChronoUnit.DAYS) -> "Yesterday"
-                        else -> date // You can format this if needed
-                    }
-                    //   Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text =textToDisplay,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 12.dp )
-                    )
-                }
-
-                items(notificationList) { notification ->
-                   Column (modifier = Modifier.padding(vertical = 5.dp)){
-                       NotificationCard(notification.text , pic = notification.pic)
-                   }
+        compareByDescending { date ->
+            try {
+                // Parse ISO 8601 date format
+                OffsetDateTime.parse(date).toLocalDate()
+            } catch (e: Exception) {
+                // Fallback for dd-MM-yyyy format
+                try {
+                    LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                } catch (e: Exception) {
+                    // If both parsing attempts fail, use epoch date as fallback
+                    LocalDate.EPOCH
                 }
             }
         }
+    )
 
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(50.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                sortedGroupedNotifications.forEach { (date, notificationList) ->
+                    item {
+                        val displayDate = try {
+                            // Parse ISO 8601 date
+                            val parsedDate = OffsetDateTime.parse(date).toLocalDate()
+                            val today = LocalDate.now()
+                            when {
+                                parsedDate == today -> "Today"
+                                parsedDate == today.minusDays(1) -> "Yesterday"
+                                else -> parsedDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                            }
+                        } catch (e: Exception) {
+                            // If parsing fails, just display the original date string
+                            date
+                        }
+
+                        Text(
+                            text = displayDate,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(vertical = 12.dp)
+                        )
+                    }
+
+                    items(notificationList) { notification ->
+                        Column(modifier = Modifier.padding(vertical = 5.dp)) {
+                            NotificationCard(notification.text, pic = notification.pic)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
 @Composable
 fun NotificationCard(text:String , pic: Int){
    Row (modifier = Modifier.fillMaxWidth()
