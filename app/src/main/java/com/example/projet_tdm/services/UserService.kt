@@ -17,7 +17,7 @@ data class UpdateRequest(
     val name: String?,
     val email: String?,
     val profilePicture: String?,
-    val addresses: List<String>?,
+    val addresses: List<Address>?,
     val phoneNumber: String?,
     val bio: String?,
 )
@@ -27,12 +27,19 @@ data class InfoResponse(
     val user: InfoUser?
 )
 
+data class Address(
+    val title: String?,
+    val street: String?,
+    val city: String?,
+    val postalCode: String?
+)
+
 data class InfoUser(
     val id: String?,
     val name: String?,
     val email: String?,
     val profilePicture: String?,
-    val addresses: List<String>?,
+    val addresses: List<Address>?,
     val phoneNumber: String?,
     val bio: String?
 )
