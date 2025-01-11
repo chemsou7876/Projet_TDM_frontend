@@ -1,5 +1,6 @@
 package com.example.projet_tdm.screens.auth
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,14 +29,24 @@ import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.components.CustomTextField
 import com.example.projet_tdm.components.PasswordField
+import com.example.projet_tdm.services.ApiClient
+import com.example.projet_tdm.services.LoginRequest
+import com.example.projet_tdm.services.LoginResponse
+import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.ui.theme.Sen
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
+    var loginMessage by remember { mutableStateOf("") }
+    var isLoginInProgress by remember { mutableStateOf(false) }
 
     // Error states
     var emailError by remember { mutableStateOf<String?>(null) }
@@ -42,12 +54,11 @@ fun LoginScreen(navController: NavController) {
     var showError by remember { mutableStateOf(false) }
 
     val orangebg = Color(0xFFFF7622)
-    val orangeColor = Color(0x86FF7622)
-    val errorColor = Color(0xFFB00020)
-    val borderColor = Color(0xFFE3EBF2)
+
     // Validation functions
     fun validateEmail(): Boolean {
         return when {
+
             email.isEmpty() -> {
                 emailError = "Email is required"
                 false
@@ -57,9 +68,10 @@ fun LoginScreen(navController: NavController) {
                 false
             }
             else -> {
-                emailError = null
-                true
+                    emailError = null
+                    true
             }
+
         }
     }
 
@@ -74,13 +86,76 @@ fun LoginScreen(navController: NavController) {
                 false
             }
             else -> {
-                passwordError = null
-                true
+
+                    passwordError = null
+                    true
+
             }
         }
     }
 
-    Column(
+    fun login(context: Context) {
+        val authService = ApiClient.authService
+        val request = LoginRequest(email = email, password = password)
+
+        emailError = null
+        passwordError = null
+        showError = false
+
+        authService.login(request).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+
+                    if (result?.user != null) {
+                        UserSession.userId = result.user.id
+                        UserSession.isLoggedIn = true
+                        loginMessage = "Login Successful!"
+
+                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                        val editor = sharedPreferences.edit()
+
+                        editor.putBoolean("is_logged_in", true)
+                        editor.putString("user_id", result.user.id)
+                        editor.apply()
+
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else {
+                        loginMessage = "Login Failed: ${result?.message}"
+                    }
+                } else {
+                    val errorJson = response.errorBody()?.string() // Parse error body as string
+                    try {
+                        val gson = com.google.gson.Gson()
+                        val errorResponse = gson.fromJson(errorJson, LoginResponse::class.java)
+                        loginMessage = "Error: ${errorResponse.message}"
+                    } catch (e: Exception) {
+                        loginMessage = "Login Failed: ${response.message()}"
+                    } finally {
+                        if (loginMessage == "Error: Invalid password") {
+                            passwordError = loginMessage
+                        }
+                        if (loginMessage == "Error: Email not found") {
+                            emailError = loginMessage
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                println("Network error: ${t.message}")
+                loginMessage = "Network error: ${t.message}"
+            }
+        })
+        isLoginInProgress = false
+    }
+
+
+
+
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -201,14 +276,18 @@ fun LoginScreen(navController: NavController) {
             // Login Button with validation
             Button(
                 onClick = {
+                    println("herreeeeee")
                     val isEmailValid = validateEmail()
                     val isPasswordValid = validatePassword()
 
                     if (isEmailValid && isPasswordValid) {
-                        navController.navigate("home")
+                        isLoginInProgress = true
+                        login(context)
+
                     } else {
                         showError = true
                     }
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -216,10 +295,12 @@ fun LoginScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(backgroundColor = orangebg),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("LOG IN",
+                Text(
+                    text = if (isLoginInProgress) "Logging In..." else "LOG IN",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = Sen)
+                    fontFamily = Sen
+                )
             }
 
             // Rest of the UI remains the same...
@@ -276,6 +357,8 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
+
+
 
 @Composable
 fun SocialLoginButton(
