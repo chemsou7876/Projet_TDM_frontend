@@ -30,7 +30,12 @@ import com.example.projet_tdm.R
 @Composable
 fun Adresse_card(title : String , desc : String , type : Int , onEditClick: () -> Unit,
                  onDeleteClick: () -> Unit){
-    val pic =if (type==1) R.drawable.ic_home else R.drawable.ic_work
+    val pic = when (type) {
+        1 -> R.drawable.ic_home
+        2 -> R.drawable.ic_work
+        else -> R.drawable.profile_pic
+    }
+
     Column (modifier = Modifier.padding(vertical = 10.dp)) {
         Column(
             modifier = Modifier
@@ -55,15 +60,6 @@ fun Adresse_card(title : String , desc : String , type : Int , onEditClick: () -
 
                     Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                      Row ( ) {
-                         Image(
-                             painter = painterResource(id = R.drawable.ic_edit_adr),
-                             contentDescription = "Default Profile Image",
-                             modifier = Modifier.clickable(
-                                 onClick = {onEditClick()}
-                             )
-                          //   contentScale = ContentScale.Crop
-                         )
-                         Spacer(modifier = Modifier.width(18.dp))
                          Image(
                              painter = painterResource(id = R.drawable.ic_delete_adr),
                              contentDescription = "Default Profile Image",

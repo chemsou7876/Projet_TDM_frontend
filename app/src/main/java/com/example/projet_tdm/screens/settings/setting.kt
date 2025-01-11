@@ -31,7 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
+import com.example.projet_tdm.services.Address
 import com.example.projet_tdm.services.UserSession
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 fun logout(context: Context, navController:NavController) {
     // Clear UserSession
@@ -58,6 +61,7 @@ fun Setting(navController: NavController){
     val userEmail = sharedPreferences.getString("user_email", "No Email")
     val userPhone = sharedPreferences.getString("user_phoneNumber", "No phone number")
     val userBio = sharedPreferences.getString("user_bio", "Write your bio")
+
 
     Column(modifier = Modifier.padding(vertical = 10.dp , horizontal = 20.dp).fillMaxSize()
         //   .verticalScroll(scrollState) ,

@@ -44,6 +44,7 @@ import com.example.projet_tdm.services.ApiInfoClient
 import com.example.projet_tdm.services.InfoResponse
 import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UpdateRequest
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 
@@ -72,7 +73,6 @@ fun ProfilePage(navController: NavController){
     val userProfile = sharedPreferences.getString("user_profilePicture", "profile pic")
 
     var infoMessage by remember { mutableStateOf("") }
-    val updateUserInfo : UpdateRequest
 
 
     fun updateUserInfo(context : Context ,navController: NavController, updatedInfo: UpdateRequest){
@@ -87,15 +87,19 @@ fun ProfilePage(navController: NavController){
                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
                        val editor = sharedPreferences.edit()
 
+
                        editor.putBoolean("is_logged_in", true)
                        editor.putString("user_id", updatedInfo.id)
                        editor.putString("user_name", result.user.name)
                        editor.putString("user_email", result.user.email)
-                       // editor.putString("user_addresses", result.user.addresses)
                        editor.putString("user_phoneNumber", result.user.phoneNumber)
                        editor.putString("user_profilePicture", result.user.profilePicture)
                        editor.putString("user_bio", result.user.bio)
+                       val gson = Gson()
+                       val addressesJson = gson.toJson(result.user.addresses) // user.addresses is a List<Address>
+                       editor.putString("user_addresses", addressesJson)
                        editor.apply()
+
                        navController.navigate("settings"){
                            popUpTo("edit_profile"){ inclusive = true }
                        }

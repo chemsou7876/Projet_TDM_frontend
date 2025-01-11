@@ -1,12 +1,8 @@
 package com.example.projet_tdm.screens.profile
 
-
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,26 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Colors
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,31 +28,148 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.example.projet_tdm.R
-import com.example.projet_tdm.components.Adresse_card
+import com.example.projet_tdm.components.CustomTextField
 import com.example.projet_tdm.components.OrangeButton
+import com.example.projet_tdm.services.Address
+import com.example.projet_tdm.services.ApiInfoClient
+import com.example.projet_tdm.services.InfoResponse
+import com.example.projet_tdm.services.LoginResponse
+import com.example.projet_tdm.services.UpdateRequest
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import retrofit2.Call
+import retrofit2.Callback
+
+
 
 @Composable
-fun Edit_adresses(navController: NavController){
-
-
-   var adress by remember { mutableStateOf("") }
+fun Edit_adresses(navController: NavController) {
+    val context = LocalContext.current
+    var address by remember { mutableStateOf("") }
+    var street by remember { mutableStateOf("") }
+    var postCode by remember { mutableStateOf("") }
     var selectedOption by remember { mutableStateOf(1) }
 
+    // Get current list of addresses from SharedPreferences
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val addressesJson = sharedPreferences.getString("user_addresses", "[]") ?: "[]"
+    val gson = Gson()
+    val type = object : TypeToken<List<Address>>() {}.type
+    var addressList by remember { mutableStateOf(gson.fromJson<List<Address>>(addressesJson, type)) }
 
+
+    fun updateUserInfo(context : Context, navController: NavController, updatedInfo: UpdateRequest){
+
+        val infoService = ApiInfoClient.authService
+        val request = UpdateRequest(updatedInfo.id , updatedInfo.name , updatedInfo.email , updatedInfo.profilePicture ,
+            updatedInfo.addresses , updatedInfo.phoneNumber , updatedInfo.bio)
+        infoService.updateInfo(request).enqueue(object: Callback<InfoResponse> {
+            override fun onResponse(call: Call<InfoResponse>, response: retrofit2.Response<InfoResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    if (result?.user != null) {
+                        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+                        val editor = sharedPreferences.edit()
+
+
+                        editor.putBoolean("is_logged_in", true)
+                        editor.putString("user_id", updatedInfo.id)
+                        editor.putString("user_name", result.user.name)
+                        editor.putString("user_email", result.user.email)
+                        editor.putString("user_phoneNumber", result.user.phoneNumber)
+                        editor.putString("user_profilePicture", result.user.profilePicture)
+                        editor.putString("user_bio", result.user.bio)
+                        val gson = Gson()
+                        val addressesJson = gson.toJson(result.user.addresses) // user.addresses is a List<Address>
+                        editor.putString("user_addresses", addressesJson)
+                        editor.apply()
+
+                        navController.navigate("settings"){
+                            popUpTo("edit_profile"){ inclusive = true }
+                        }
+
+                    }
+                }
+                else {
+                    println("Response code: ${response.code()}")
+                    println("Error body: ${response.errorBody()?.string()}")
+
+                    val errorJson = response.errorBody()?.string() // Parse error body as string
+                    try {
+                        val gson = com.google.gson.Gson()
+                        val errorResponse = gson.fromJson(errorJson, LoginResponse::class.java)
+
+                    } catch (e: Exception) {
+
+                    }
+                }
+            }
+            override fun onFailure(call: Call<InfoResponse>, t: Throwable) {
+            }
+        })
+
+
+    }
+    // Function to save new address
+
+    fun saveNewAddress() {
+        val newAddress = Address(
+            title = when (selectedOption) {
+                1 -> "HOME"
+                2 -> "WORK"
+                else -> "OTHER"
+            },
+            street = street,
+            city = address,
+            postalCode = postCode
+        )
+        addressList = addressList + newAddress
+
+        // Update SharedPreferences
+        val updatedAddressesJson = gson.toJson(addressList)
+        with(sharedPreferences.edit()) {
+            putString("user_addresses", updatedAddressesJson)
+            apply()
+        }
+
+        val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+        val userName = sharedPreferences.getString("user_name", "No Name")
+        val userEmail = sharedPreferences.getString("user_email", "No Email")
+        val userPhone = sharedPreferences.getString("user_phoneNumber", "No phone number")
+        val userBio = sharedPreferences.getString("user_bio", "Write your bio")
+        val userId = sharedPreferences.getString("user_id", "Write your bio")
+
+        // Call your updateUserInfo function here to update the backend
+        val updatedRequest = UpdateRequest(
+            id =userId,
+            name = userName,
+            email = userEmail,
+            profilePicture = "",
+            addresses = addressList,
+            phoneNumber =userPhone,
+            bio =userBio
+        )
+
+        // Send updated request to API
+        updateUserInfo(context, navController, updatedRequest)
+
+        // Navigate back after updating
+        navController.navigate("settings") {
+            popUpTo("edit_profile") { inclusive = true }
+        }
+    }
     Column(modifier = Modifier
-        .padding(vertical = 15.dp , horizontal = 6.dp)
+        .padding(vertical = 15.dp, horizontal = 6.dp)
         .fillMaxSize()
-        //   .verticalScroll(scrollState) ,
-        , //verticalArrangement = Arrangement.SpaceBetween
     ) {
-
+        // Back Row
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = R.drawable.ic_back_blk),
@@ -81,128 +177,83 @@ fun Edit_adresses(navController: NavController){
                 modifier = Modifier
                     .size(50.dp)
                     .clickable {
-                        navController.navigate("adresses") //navigate to the settigns page
+                        navController.navigate("adresses")
                     },
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text ="My Address",
-                fontSize = 20.sp)
-
+            Text(text = "My Address", fontSize = 20.sp)
         }
-Column (modifier = Modifier.fillMaxWidth().padding(10.dp) , verticalArrangement = Arrangement.Top) {
-    Column (modifier = Modifier.padding(top =  12.dp , start = 8.dp , end = 8.dp)) {
-        Text("ADRESSES",
-            fontSize = 18.sp ,
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 5.dp))
-        OutlinedTextField(
-            value = adress,
-            onValueChange = {adress = it},
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("3235 Royal Ln. mesa, new jersy 34567", color = Color(0xFF6B6E82)) },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_location),
-                    contentDescription = "Location Icon",
-                    tint = Color(0xFF6B6E82)
-                )
-            },)
-        Spacer(modifier = Modifier.height(20.dp))
-        Row (modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween  ){
-            Column ( modifier = Modifier
-                .weight(1f) // Prend une partie égale de l'espace disponible
-                .padding(end = 8.dp),){
-                Text("STREET",
-                    fontSize = 18.sp ,
-                    style = MaterialTheme.typography.h5,
-                    modifier = Modifier.padding(bottom = 5.dp))
-                OutlinedTextField(
-                    value = adress,
-                    onValueChange = {adress = it},
 
-                    placeholder = { Text("hason nagar", color = Color(0xFF6B6E82)) },
-                )
-            }
-            // Spacer(modifier = Modifier.height(60.dp))
-            Column (   modifier = Modifier
-                .weight(1f),){
-                Text("POST CODE",
-                    fontSize = 18.sp ,
-                    style = MaterialTheme.typography.h5,
-                    modifier = Modifier.padding(bottom = 5.dp))
-                OutlinedTextField(
-                    value = adress,
-                    onValueChange = {adress = it},
-
-                    placeholder = { Text("34567", color = Color(0xFF6B6E82)) },
-                )
-            }
-
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Column {
-            Text("APPARTMENT",
-                fontSize = 18.sp ,
-                style = MaterialTheme.typography.h5,
-                modifier = Modifier.padding(bottom = 5.dp))
-            OutlinedTextField(
-                value = adress,
-                onValueChange = {adress = it},
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("345", color = Color(0xFF6B6E82)) },
+        // Form to input address
+        Column(modifier = Modifier.fillMaxWidth().padding(10.dp), verticalArrangement = Arrangement.Top) {
+            CustomTextField(
+                value = address,
+                onValueChange = { address = it },
+                label = "CITY",
+                placeholder = "Please enter the city",
             )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Column {
-            Text("LABEL AS",
-                fontSize = 18.sp ,
-                style = MaterialTheme.typography.h5,
-                modifier = Modifier.padding(bottom = 5.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            CustomTextField(
+                value = street,
+                onValueChange = { street = it },
+                label = "STREET",
+                placeholder = "Please enter the street",
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+            CustomTextField(
+                value = postCode,
+                onValueChange = { postCode = it },
+                label = "POST CODE",
+                placeholder = "Please enter the postal code",
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Label selection for the address
+            Text("LABEL AS", fontSize = 18.sp, style = MaterialTheme.typography.h5, modifier = Modifier.padding(bottom = 5.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                //  .padding(16.dp),
-                ,  horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Les trois éléments
                 for (option in 1..3) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 5.dp)
                             .height(40.dp)
-                            // .size(80.dp) // Taille de chaque élément
-                            .clip(RoundedCornerShape(16.dp)) // Coins arrondis
+                            .clip(RoundedCornerShape(16.dp))
                             .background(
-                                if (option == selectedOption) Color(0xFFF58D1D) else Color(0xFFF0F5FA) // Couleur selon sélection
+                                if (option == selectedOption) Color(0xFFF58D1D) else Color(0xFFF0F5FA)
                             )
                             .clickable {
-                                selectedOption = option // Met à jour l'élément sélectionné
+                                selectedOption = option
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text =  if (option == 2) "WORK" else if (option == 1) "HOME" else "OTHER",
-                            color =  if (option == selectedOption)  Color.White else Color.Black,
+                            text = when (option) {
+                                2 -> "WORK"
+                                1 -> "HOME"
+                                else -> "OTHER"
+                            },
+                            color = if (option == selectedOption) Color.White else Color.Black,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(30.dp))
+
+            // Save button
+            OrangeButton("Save location", onClick = { saveNewAddress() })
         }
-}
-           // Spacer(modifier = Modifier.height(20.dp))
-
-            OrangeButton("Save location" , onClick = {})
-
-        }
-
-
     }
 }
+
 
 

@@ -31,6 +31,7 @@ import com.example.projet_tdm.services.LoginRequest
 import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.ui.theme.Sen
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -110,16 +111,13 @@ fun LoginScreen(navController: NavController) {
                         editor.putString("user_id", id)
                         editor.putString("user_name", result.user.name)
                         editor.putString("user_email", result.user.email)
-                       // editor.putString("user_addresses", result.user.addresses)
                         editor.putString("user_phoneNumber", result.user.phoneNumber)
                         editor.putString("user_profilePicture", result.user.profilePicture)
                         editor.putString("user_bio", result.user.bio)
+                        val gson = Gson()
+                        val addressesJson = gson.toJson(result.user.addresses) // user.addresses is a List<Address>
+                        editor.putString("user_addresses", addressesJson)
                         editor.apply()
-
-                        println("here are some infos")
-                        println(id)
-                        println(result.user.email)
-                        println(result.user.bio)
 
                     } else {
                         infoMessage = "Login Failed: ${result?.message}"
