@@ -1,5 +1,7 @@
 package com.example.projet_tdm.screens.RestaurantView
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +44,40 @@ import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
+    val context = LocalContext.current
+
+    fun openPhoneDialer(phoneNumber: String) {
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$phoneNumber")
+        }
+        context.startActivity(intent)
+    }
+
+    fun openFacebookProfile(facebookId: String) {
+        try {
+            // Try to open Facebook app
+            context.packageManager.getPackageInfo("com.facebook.katana", 0)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/$facebookId"))
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Open in browser if Facebook app is not installed
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/$facebookId"))
+            context.startActivity(intent)
+        }
+    }
+
+    fun openInstagramProfile(instagramId: String) {
+        try {
+            // Try to open Instagram app
+            context.packageManager.getPackageInfo("com.instagram.android", 0)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("instagram://user?username=$instagramId"))
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Open in browser if Instagram app is not installed
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/$instagramId"))
+            context.startActivity(intent)
+        }
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -145,9 +182,13 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
             )
 
             //Phone Row
-            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                modifier=Modifier.fillMaxWidth()
-                    .padding(20.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .clickable { openPhoneDialer(restaurant.phone) }
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         modifier = Modifier.size(20.dp),
@@ -250,9 +291,13 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
             )
 
             //Facebook Row
-            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                modifier=Modifier.fillMaxWidth()
-                    .padding(20.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .clickable { openFacebookProfile(restaurant.facebook) }
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         modifier = Modifier.size(20.dp),
@@ -262,7 +307,7 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Fecebook",
+                        text = "Facebook",
                         fontSize = 17.sp,
                         color = Color.Black,
                         fontFamily = Sen
@@ -285,9 +330,13 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
             )
 
             //Instagram Row
-            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                modifier=Modifier.fillMaxWidth()
-                    .padding(20.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .clickable { openInstagramProfile(restaurant.instagram) }
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         modifier = Modifier.size(20.dp),

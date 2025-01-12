@@ -19,6 +19,7 @@ import androidx.navigation.compose.*
 import com.example.projet_tdm.R
 import com.example.projet_tdm.screens.home.tabs.HomeTab
 import com.example.projet_tdm.screens.home.tabs.NotificationsTab
+import com.example.projet_tdm.screens.home.tabs.ProfilTab
 import com.example.projet_tdm.screens.home.tabs.SearchTab
 import com.example.projet_tdm.screens.home.tabs.TrackTab
 import com.example.projet_tdm.screens.profile.ProfilePage
@@ -129,7 +130,7 @@ fun HomeScreen(navController: NavController) {
                 driverNumber = "+1234567890"  // Replace with actual driver number
             )
                 3 -> NotificationsTab()
-                4 -> ProfileContent(navController)
+                4 -> ProfilTab(navController)
             }
         }
     }

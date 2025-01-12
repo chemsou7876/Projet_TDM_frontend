@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.example.projet_tdm.R
 import com.example.projet_tdm.services.NotificationService
 import com.example.projet_tdm.services.UserSession
+import com.example.projet_tdm.ui.theme.Sen
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -93,67 +94,68 @@ fun NotificationsTab() {
     }
 
     Column(modifier = Modifier.padding((8.dp)).fillMaxSize()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.back_icon),
-                contentDescription = "Default Profile Image",
-                modifier = Modifier.size(55.dp).clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                   // navController.navigate("settings") // Navigate to the HomeScreen when clicked
-                },
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(text ="Notifications",
-                fontSize = 22.sp)
+        Text(
+            text = "Notifications",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 10.dp, start = 8.dp),
+            color = Color(0xFF303030),
+            fontSize = 23.sp,
+            fontFamily = Sen,
+            fontWeight = FontWeight.Bold)
 
-        }
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(40.dp)
-                    .align(Alignment.CenterHorizontally)
-                    , color = Color(0xFFFF7622)
-            )
-        } else {
-            if(notifications.isEmpty())
-            {
-                Column (modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("You have no notifications !! " , color = Color(0xFFFF7622) , fontWeight = FontWeight.Bold , fontSize = 15.sp)
-                }
-            }
-            else {
-                LazyColumn(
-                    state = listState, // Pass the scroll state
+            if (isLoading) {
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    groupedNotifications.forEach { (displayDate, notificationsOnSameDay) ->
-                        item {
-                            Text(
-                                text = displayDate,
-                                fontSize = 14.sp,
-                                color = Color.Gray,  // Customize the style here
-                                modifier = Modifier.padding(vertical = 8.dp)
-                            )
-                        }
-
-                        notificationsOnSameDay.forEach { notification ->
+                        .size(40.dp)
+                        .align(Alignment.CenterHorizontally), color = Color(0xFFFF7622)
+                )
+            } else {
+                if (notifications.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "You have no notifications !! ",
+                            color = Color(0xFFFF7622),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            fontFamily = Sen,
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        state = listState, // Pass the scroll state
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        groupedNotifications.forEach { (displayDate, notificationsOnSameDay) ->
                             item {
-                                NotificationCard(
-                                    notification.text,
-                                    pic = notification.pic
+                                Text(
+                                    text = displayDate,
+                                    fontSize = 14.sp,
+                                    color = Color.Gray,  // Customize the style here
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    fontFamily = Sen,
                                 )
-                                Spacer(modifier = Modifier.height(15.dp))
+                            }
+
+                            notificationsOnSameDay.forEach { notification ->
+                                item {
+                                    NotificationCard(
+                                        notification.text,
+                                        pic = notification.pic
+                                    )
+                                    Spacer(modifier = Modifier.height(15.dp))
+                                }
                             }
                         }
                     }
                 }
             }
-        }
     }
 }
 
@@ -175,6 +177,6 @@ fun NotificationCard(text: String, pic: Int) {
             modifier = Modifier.size(40.dp)
         )
         Spacer(modifier = Modifier.width(10.dp))
-        Text(text, fontSize = 16.sp)
+        Text(text, fontSize = 16.sp, fontFamily = Sen)
     }
 }

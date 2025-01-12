@@ -100,7 +100,7 @@ fun ProfilePage(navController: NavController){
                        editor.putString("user_addresses", addressesJson)
                        editor.apply()
 
-                       navController.navigate("settings"){
+                       navController.navigate("profile"){
                            popUpTo("edit_profile"){ inclusive = true }
                        }
 
@@ -144,7 +144,7 @@ fun ProfilePage(navController: NavController){
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-                    navController.navigate("settings") // Navigate to the HomeScreen when clicked
+                    navController.navigate("profile") // Navigate to the HomeScreen when clicked
                 },
                 contentScale = ContentScale.Crop
             )

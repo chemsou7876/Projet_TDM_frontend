@@ -91,7 +91,7 @@ fun Edit_adresses(navController: NavController) {
                         editor.putString("user_addresses", addressesJson)
                         editor.apply()
 
-                        navController.navigate("settings"){
+                        navController.navigate("profile"){
                             popUpTo("edit_profile"){ inclusive = true }
                         }
 
@@ -161,7 +161,7 @@ fun Edit_adresses(navController: NavController) {
         updateUserInfo(context, navController, updatedRequest)
 
         // Navigate back after updating
-        navController.navigate("settings") {
+        navController.navigate("profile") {
             popUpTo("edit_profile") { inclusive = true }
         }
     }

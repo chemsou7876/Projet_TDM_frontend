@@ -144,7 +144,7 @@ fun Adresses(navController: NavController){
                     modifier = Modifier
                         .size(55.dp)
                         .clickable {
-                            navController.navigate("settings") // navigate to the settings page
+                            navController.navigate("Profile") // navigate to the settings page
                         },
                     contentScale = ContentScale.Crop
                 )

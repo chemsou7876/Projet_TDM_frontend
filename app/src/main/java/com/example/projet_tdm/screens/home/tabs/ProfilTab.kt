@@ -1,4 +1,4 @@
-package com.example.projet_tdm.screens.settings
+package com.example.projet_tdm.screens.home.tabs
 
 import android.content.Context
 import androidx.compose.foundation.Image
@@ -31,13 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
-import com.example.projet_tdm.services.Address
 import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.ui.theme.Sen
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
-fun logout(context: Context, navController:NavController) {
+
+fun logout(context: Context, navController: NavController) {
     // Clear UserSession
     UserSession.userId = null
     UserSession.isLoggedIn = false
@@ -54,7 +52,7 @@ fun logout(context: Context, navController:NavController) {
 }
 
 @Composable
-fun Setting(navController: NavController){
+fun ProfilTab(navController: NavController){
     val context = LocalContext.current
     val defaultProfileImage = painterResource(id = R.drawable.profile_pic)
     val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
@@ -68,29 +66,30 @@ fun Setting(navController: NavController){
         //   .verticalScroll(scrollState) ,
         , verticalArrangement = Arrangement.SpaceBetween
     ) {
-    Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
-        Text(
-            text = "Profile",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, start = 8.dp),
-            color = Color(0xFF303030),
-            fontSize = 23.sp,
-            fontFamily = Sen,
-            fontWeight = FontWeight.Bold
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_more),
-            contentDescription = "Default Profile Image",
-            modifier = Modifier.size(55.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                //navController.navigate("home") // Navigate to the HomeScreen when clicked
-            },
-            contentScale = ContentScale.Crop
-        )}
+        Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
+            Text(
+                text = "Profile",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, start = 8.dp),
+                color = Color(0xFF303030),
+                fontSize = 23.sp,
+                fontFamily = Sen,
+                fontWeight = FontWeight.Bold
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_more),
+                contentDescription = "Default Profile Image",
+                modifier = Modifier.size(55.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        //navController.navigate("home") // Navigate to the HomeScreen when clicked
+                    },
+                contentScale = ContentScale.Crop
+            )
+        }
 
         Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
             Image(
@@ -166,7 +165,7 @@ fun Setting(navController: NavController){
                 } }
         }
 
-      //  Spacer(modifier = Modifier.height(25.dp))
+        //  Spacer(modifier = Modifier.height(25.dp))
         Column (modifier = Modifier
             .fillMaxWidth()
             .clip(shape = RoundedCornerShape(16.dp))
@@ -248,7 +247,7 @@ fun Setting(navController: NavController){
             Row (modifier = Modifier
                 .fillMaxWidth(),
 
-                 verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically
                 , horizontalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically){
                     Image(

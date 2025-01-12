@@ -33,6 +33,7 @@ import com.example.projet_tdm.R
 import com.example.projet_tdm.services.NotificationService
 import com.example.projet_tdm.services.createNotificationChannel
 import com.example.projet_tdm.services.sendNotification
+import com.example.projet_tdm.ui.theme.Sen
 import kotlinx.coroutines.launch
 
 
@@ -110,49 +111,31 @@ fun TrackTab(
         }
     }
 
-    Scaffold(
-
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
-                }
-                Text(
-                    text = "Order Tracking",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        },
+    Column(
         modifier = Modifier
+            .padding(horizontal = 20.dp)
             .fillMaxSize()
-            .padding(16.dp)
     ) {
-        Column(
+        Text(
+            text = "Order Tracking",
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 80.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            currentStatuses.forEachIndexed { index, (status, isActive) ->
-                StatusItem(status, isActive)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            EstimatedDeliveryTime(deliveryTime)
-            Spacer(modifier = Modifier.height(32.dp))
-            DriverInfo(driverNumber)
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 10.dp),
+            color = Color(0xFF303030),
+            fontSize = 23.sp,
+            fontFamily = Sen,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        EstimatedDeliveryTime(deliveryTime)
+        Spacer(modifier = Modifier.height(24.dp))
+        currentStatuses.forEachIndexed { index, (status, isActive) ->
+            StatusItem(status, isActive)
+            Spacer(modifier = Modifier.height(16.dp))
         }
+        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+        DriverInfo(driverNumber)
     }
 }
 
@@ -172,13 +155,15 @@ fun RestaurantInfo(restaurantName: String, orderDetails: String,image : Int) {
                 text = restaurantName,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.Black,
+                fontFamily = Sen,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = orderDetails,
                 fontSize = 14.sp,
-                color = Color.Gray
+                color = Color.Gray,
+                fontFamily = Sen,
             )
         }
     }
@@ -208,7 +193,8 @@ fun StatusItem(text: String, isActive: Boolean) {
         Text(
             text = text,
             color = if (isActive) Color(0xFFFFA500) else Color.Gray,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontFamily = Sen,
         )
     }
 }
@@ -222,12 +208,14 @@ fun EstimatedDeliveryTime(deliveryTime: String) {
         Text(
             text = deliveryTime,
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontFamily = Sen,
         )
         Text(
             text = "ESTIMATED DELIVERY TIME",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.Gray,
+            fontFamily = Sen,
         )
     }
 }
@@ -244,13 +232,15 @@ fun DriverInfo(driverNumber: String) {
         Text(
             text = "Driver's Number:",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.Gray,
+            fontFamily = Sen,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = driverNumber,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = Sen,
             color = Color(0xFFFB6D3A),
             modifier = Modifier.clickable {
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$driverNumber"))

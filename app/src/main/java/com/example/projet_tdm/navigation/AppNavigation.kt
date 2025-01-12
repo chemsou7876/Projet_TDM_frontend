@@ -18,6 +18,7 @@ import com.example.projet_tdm.screens.auth.SignUpScreen
 import com.example.projet_tdm.screens.auth.ForgotPasswordScreen
 import com.example.projet_tdm.screens.auth.OtpScreen
 import com.example.projet_tdm.screens.home.HomeScreen
+import com.example.projet_tdm.screens.home.tabs.ProfilTab
 import com.example.projet_tdm.screens.profile.UploadProfileScreen
 import com.example.projet_tdm.screens.location.LocationScreen
 import com.example.projet_tdm.screens.profile.Adresses
@@ -43,6 +44,7 @@ fun AppNavigation() {
         composable("home") { HomeScreen(navController) }
         composable("cart") { CartScreen(navController) }
         composable("edit_profile") { ProfilePage(navController) }
+        composable("profile") { ProfilTab(navController) }
         composable("settings") { Setting(navController) }
         composable("adresses") { Adresses(navController) }
         composable("edit_adresses") { Edit_adresses(navController) }
