@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Divider
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
@@ -64,11 +66,11 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                         .padding(16.dp)
                         .size(40.dp)
                         .background(Color.White, CircleShape)
-                        .clickable { /* Add your navigation logic here */ },
+                        .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.Default.KeyboardArrowLeft,
                         contentDescription = "Back",
                         tint = Color.Black,
                         modifier = Modifier.size(24.dp)
@@ -84,6 +86,7 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                 text = restaurant.name,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
+                fontFamily = Sen,
                 color = Color(0xFF303030)
             )
 
@@ -121,7 +124,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.noteMoy}",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -129,7 +133,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "29 avis",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }
@@ -154,7 +159,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "Phone",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -162,7 +168,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.phone}",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }
@@ -187,7 +194,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "Heures d'ouverture",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -195,7 +203,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.openHour} - ${restaurant.closeHour}",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }
@@ -220,7 +229,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "Délai de livraison",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -228,7 +238,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.deliverytime}",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }
@@ -253,7 +264,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "Fecebook",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -261,7 +273,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.facebook}",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }
@@ -286,7 +299,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "Instagram",
                         fontSize = 17.sp,
-                        color = Color.Black
+                        color = Color.Black,
+                        fontFamily = Sen
                     )
                 }
 
@@ -294,7 +308,8 @@ fun RestaurantViewInfos(navController: NavController, restaurant: Restaurant) {
                     Text(
                         text = "${restaurant.instagram}",
                         fontSize = 17.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontFamily = Sen
                     )
                 }
             }

@@ -3,6 +3,7 @@ package com.example.projet_tdm.screens.search
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -65,6 +67,7 @@ fun SearchCategorieView(navController: NavController){
         item {
             Row {
                 HeaderSearchCategory(
+                    navController = navController,
                     selectedCategory = selectedCategory,
                     onCategorySelected = { newCategory ->
                         selectedCategory = newCategory
@@ -74,7 +77,7 @@ fun SearchCategorieView(navController: NavController){
         }
 
         item {
-            MenuListView(restaurants = getData())
+            MenuListView(restaurants = getData(),navController)
         }
 
         item {
@@ -84,7 +87,7 @@ fun SearchCategorieView(navController: NavController){
 }
 
 @Composable
-fun MenuListView(restaurants: List<Restaurant>) {
+fun MenuListView(restaurants: List<Restaurant>,navController: NavController) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -98,9 +101,24 @@ fun MenuListView(restaurants: List<Restaurant>) {
                 fontSize = 18.sp,
                 fontFamily = Sen
             )
-            TextButton(onClick = { /* Voir toutes les actions */ }) {
-                Text(text = "See All")
+            TextButton (onClick = { /**TODO*/}) {
+                Row (
+
+                    verticalAlignment = Alignment.CenterVertically,
+
+                    ){
+                    Text(text = "See All" , fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier
+                            .size(7.dp)
+                    )
+                }
+
             }
+
         }
 
         // Affichage de la grille fixe avec 2 colonnes, sans scrolling
@@ -113,7 +131,7 @@ fun MenuListView(restaurants: List<Restaurant>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 row.forEach { restaurant ->
-                    MenuBox(restaurant = restaurant)
+                    MenuBox(restaurant = restaurant,navController = navController)
                 }
             }
         }
@@ -121,13 +139,14 @@ fun MenuListView(restaurants: List<Restaurant>) {
 }
 
 @Composable
-fun MenuBox(restaurant: Restaurant) {
+fun MenuBox(restaurant: Restaurant,navController: NavController) {
     // On prend seulement le premier menu du restaurant (le premier dans la liste)
     restaurant.menus.firstOrNull()?.let { menu ->
         Card(
             modifier = Modifier
                 // Chaque élément prend une proportion égale de l'espace disponible
                 .padding(5.dp)
+                .clickable(onClick = { navController.navigate("menuView/${menu.id}/${restaurant.id}") },)
                 .height(250.dp),
 
             elevation = CardDefaults.elevatedCardElevation(4.dp)
@@ -238,8 +257,10 @@ fun MenuBoxx(menu:Menu,restaurant: Restaurant,navController: NavController) {
                         painter = painterResource(id = menu.imageUrl), // Image du menu
                         contentDescription = menu.name,
                         modifier = Modifier
-                            .height(150.dp)
-                            .fillMaxWidth()
+                            .size(150.dp) // Fixer la taille de l'image
+                            .padding(bottom = 10.dp)
+                            .clip(RoundedCornerShape(8.dp)) ,// Ajouter un bord arrondi de 16px
+                        contentScale = ContentScale.Crop,
                     )
 
                     Column(
@@ -318,9 +339,24 @@ fun OpenRestaurantsCategory(navController: NavController) {
                 fontFamily = Sen,
                 //fontWeight = FontWeight.Bold
             )
-            TextButton(onClick = { /* See all action */ }) {
-                Text(text = "See All")
+            TextButton (onClick = { /**TODO*/}) {
+                Row (
+
+                    verticalAlignment = Alignment.CenterVertically,
+
+                    ){
+                    Text(text = "See All" , fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier
+                            .size(7.dp)
+                    )
+                }
+
             }
+
         }
 
         Column(
@@ -359,9 +395,24 @@ fun PopularBurgersGrid(selectedCategory: String, onCategorySelected: (String) ->
                 fontSize = 18.sp,
                 fontFamily = Sen
             )
-            TextButton(onClick = { /* See all action */ }) {
-                Text(text = "See All")
+            TextButton (onClick = { /**TODO*/}) {
+                Row (
+
+                    verticalAlignment = Alignment.CenterVertically,
+
+                    ){
+                    Text(text = "See All" , fontFamily = Sen, color = Color(0xFFA0A5BA))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrow_right_simple),
+                        contentDescription = "Arrow Right Icon",
+                        modifier = Modifier
+                            .size(7.dp)
+                    )
+                }
+
             }
+
         }
 
         LazyVerticalGrid(
@@ -379,7 +430,7 @@ fun PopularBurgersGrid(selectedCategory: String, onCategorySelected: (String) ->
 
 
 @Composable
-fun HeaderSearchCategory(selectedCategory: String , onCategorySelected: (String) -> Unit){
+fun HeaderSearchCategory(navController: NavController,selectedCategory: String , onCategorySelected: (String) -> Unit){
     var isFilterDialogVisible by remember { mutableStateOf(false) }
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -393,7 +444,10 @@ fun HeaderSearchCategory(selectedCategory: String , onCategorySelected: (String)
             Image(
                 painter = painterResource(R.drawable.back_icon),
                 contentDescription = null,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(40.dp)    .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { navController.popBackStack() }
             )
 
             Spacer(modifier = Modifier.width(12.dp))

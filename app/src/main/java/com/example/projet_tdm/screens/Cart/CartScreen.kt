@@ -46,7 +46,6 @@ fun CartScreen(navController: NavController) {
     val pannier = PannierSingleton.pannier
     val deliveryPrice = 4
 
-
     // Load orders from local storage when the screen is composed
     LaunchedEffect(Unit) {
         PannierSingleton.initialize(context)
@@ -64,112 +63,98 @@ fun CartScreen(navController: NavController) {
         }
     }
 
-
-
-
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxSize()
-
-            ) {
-                CartHeader(
-                    isEditing = isEditing,
-                    onToggleEdit = {
-                        isEditing = !isEditing
-                        // Force recomposition when toggling edit mode
-                        if (isEmpty) {
-                            pannier.calculateTotal()
-                        }
-                    },
-                    navController = navController
-                )
-                Box(
-                    modifier = Modifier.weight(1f)
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .fillMaxSize()
+    ) {
+        CartHeader(
+            isEditing = isEditing,
+            onToggleEdit = {
+                isEditing = !isEditing
+                if (isEmpty) {
+                    pannier.calculateTotal()
+                }
+            },
+            navController = navController
+        )
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+            if (isEmpty) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    if (isEmpty) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Empty Cart",
-                                modifier = Modifier
-                                    .size(120.dp)
-                                    .padding(bottom = 16.dp),
-                                tint = Color.LightGray
-                            )
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Empty Cart",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .padding(bottom = 16.dp),
+                        tint = Color.LightGray
+                    )
 
-                            Text(
-                                text = "Your cart is empty",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
+                    Text(
+                        text = "Your cart is empty",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                            Text(
-                                text = "Add items to start a new order",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    } else {
-                        LazyColumn {
-                            items(
-                                count = pannier.orders.size,
-                                key = { index -> pannier.orders[index].hashCode() }
-                            ) { index ->
-                                val order = pannier.orders.getOrNull(index) ?: return@items
-                                CartItem(
-                                    item = order,
-                                    isEditing = isEditing,
-                                    onRemove = {
-                                        if (index < pannier.orders.size) {
-                                            pannier.orders.removeAt(index)
-                                            pannier.calculateTotal()
-                                            PannierSingleton.removeOrder(order)
-                                            // Force recomposition after removal
-                                            if (pannier.orders.isEmpty()) {
-                                                isEditing = false
-                                            }
-
-                                        }
-                                    },
-                                    onQuantityChange = { _, newQuantity ->
-                                        if (index < pannier.orders.size) {
-                                            pannier.orders[index].quantity = newQuantity
-                                            pannier.orders[index].totalAmount =
-                                                pannier.orders[index].item.price * newQuantity
-                                            pannier.calculateTotal()
-                                        }
-                                        PannierSingleton.updateOrderQuantity(order, newQuantity)
-
+                    Text(
+                        text = "Add items to start a new order",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                LazyColumn {
+                    items(
+                        count = pannier.orders.size,
+                        // Use the index and a unique property of the order as the key
+                        key = { index -> "${index}_${pannier.orders[index].item.name}_${pannier.orders[index].quantity}" }
+                    ) { index ->
+                        val order = pannier.orders.getOrNull(index) ?: return@items
+                        CartItem(
+                            item = order,
+                            isEditing = isEditing,
+                            onRemove = {
+                                if (index < pannier.orders.size) {
+                                    pannier.orders.removeAt(index)
+                                    pannier.calculateTotal()
+                                    PannierSingleton.removeOrder(order)
+                                    if (pannier.orders.isEmpty()) {
+                                        isEditing = false
                                     }
-                                )
+                                }
+                            },
+                            onQuantityChange = { _, newQuantity ->
+                                if (index < pannier.orders.size) {
+                                    pannier.orders[index].quantity = newQuantity
+                                    pannier.orders[index].totalAmount =
+                                        pannier.orders[index].item.price * newQuantity
+                                    pannier.calculateTotal()
+                                    PannierSingleton.updateOrderQuantity(order, newQuantity)
+                                }
                             }
-                        }
+                        )
                     }
                 }
-
-                // Only show these sections if cart is not empty
-                if (!isEmpty) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ExpandableDeliverySection(totalPrice = totalPrice.toInt(), deliveryPrice = deliveryPrice)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OrangeButton(text = "Place order", onClick = { })
-                    Spacer(modifier = Modifier.height(16.dp))
-
-
-                }
             }
+        }
 
-
+        if (!isEmpty) {
+            Spacer(modifier = Modifier.height(16.dp))
+            ExpandableDeliverySection(totalPrice = totalPrice.toInt(), deliveryPrice = deliveryPrice)
+            Spacer(modifier = Modifier.height(16.dp))
+            OrangeButton(text = "Place order", onClick = { })
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
 }
-
 
 @Composable
 fun CartHeader(isEditing: Boolean, onToggleEdit: () -> Unit, navController: NavController){

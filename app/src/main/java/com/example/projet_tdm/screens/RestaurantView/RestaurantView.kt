@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Info
@@ -51,6 +53,7 @@ import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
 import com.example.projet_tdm.screens.search.MenuBox
 import com.example.projet_tdm.screens.search.MenuBoxx
+import com.example.projet_tdm.ui.theme.Sen
 
 @Composable
 fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant) {
@@ -82,16 +85,16 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                         .padding(16.dp)
                         .size(40.dp)
                         .background(Color.White, CircleShape)
-                        .clickable { /* Add your navigation logic here */ },
+                        .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.Default.KeyboardArrowLeft,
                         contentDescription = "Back",
                         tint = Color.Black,
                         modifier = Modifier
                         .size(24.dp)
-                        .clickable { navController.navigate("home") }
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { navController.popBackStack() }
 )
                 }
             }
@@ -109,7 +112,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 Text(
                     text = "${restaurant.noteMoy}",
                     fontSize = 16.sp,
-                    color = Color.Black
+                    color = Color.Black,
+                    fontFamily = Sen,
                 )
 
                 Spacer(modifier = Modifier.width(25.dp))
@@ -125,7 +129,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 Text(
                     text = "${restaurant.deliverytime}",
                     fontSize = 15.sp,
-                    color = Color.Black
+                    color = Color.Black,
+                    fontFamily = Sen,
                 )
 
                 Spacer(modifier = Modifier.width(25.dp))
@@ -142,7 +147,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 Text(
                     text = "${restaurant.deliveryprice}",
                     fontSize = 15.sp,
-                    color = Color.Black
+                    color = Color.Black,
+                    fontFamily = Sen,
                 )
             }
 
@@ -153,7 +159,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 text = restaurant.name,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF303030)
+                color = Color(0xFF303030),
+                fontFamily = Sen,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -162,7 +169,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
             Text(
                 text = "${restaurant.typeCuisine} - ${restaurant.localisation}",
                 fontSize = 16.sp,
-                color = Color.Gray
+                color = Color.Gray,
+                fontFamily = Sen,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -172,7 +180,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 text = restaurant.description,
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
-                color = Color(0xFF505050)
+                color = Color(0xFF505050),
+                fontFamily = Sen,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -225,7 +234,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 text = "Categories",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontFamily = Sen,
             )
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -236,22 +246,17 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                     val isSelected = category == selectedCategory
                     Box(
                         modifier = Modifier
-                            .clickable { selectedCategory = category }
-                            .background(
-                                color = if (isSelected) Color(0xFFFFA500) else Color.Transparent,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = if (isSelected) Color.Transparent else Color.Gray,
-                                shape = RoundedCornerShape(20.dp)
-                            )
+                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { selectedCategory = category }
+                            .clip(RoundedCornerShape(50))
+                            .background(if (isSelected) Color(0xFFFFA500) else Color.Transparent)
+                            .border(1.dp,if (isSelected) Color(0x00FFA500) else Color(0xFFEDEDED), RoundedCornerShape(50))
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
                             text = category,
                             color = if (isSelected) Color.White else Color.DarkGray,
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
+                            fontFamily = Sen,
                         )
                     }
                 }
@@ -264,7 +269,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 text = selectedCategory,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontFamily = Sen,
             )
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -282,7 +288,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                 text = "Reviews",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontFamily = Sen,
             )
         }
 
@@ -318,7 +325,7 @@ fun ReviewCard(name: String, rating: Int, review: String) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = name, style = MaterialTheme.typography.titleMedium)
+                    Text(text = name, style = MaterialTheme.typography.titleMedium,fontFamily = Sen)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Row {
@@ -345,6 +352,7 @@ fun ReviewCard(name: String, rating: Int, review: String) {
                     text = review,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
+                    fontFamily = Sen,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }

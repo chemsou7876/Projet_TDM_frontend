@@ -101,7 +101,7 @@ fun SearchTab(navController: NavController) {
 
         // Suggested Restaurants Items
         items(restaurants.take(4)) { restaurant ->
-            SuggestedRestaurantItem(restaurant = restaurant)
+            SuggestedRestaurantItem(restaurant = restaurant,navController = navController)
             Divider(
                 color = Color(0xFFE3EBF2),
                 thickness = 0.5.dp,
@@ -154,7 +154,7 @@ fun SearchTab(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(selectedRestaurants) { restaurant ->
-                    PopularFastFoodItem(restaurant = restaurant)
+                    PopularFastFoodItem(restaurant = restaurant,navController=navController)
                 }
             }
         }
@@ -211,10 +211,13 @@ fun HeaderSearch(navController: NavController){
 }
 
 @Composable
-fun SuggestedRestaurantItem(restaurant: Restaurant){
+fun SuggestedRestaurantItem(restaurant: Restaurant,navController: NavController){
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                navController.navigate("restaurantDetails/${restaurant.id}")
+            }
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -256,10 +259,12 @@ fun SuggestedRestaurantItem(restaurant: Restaurant){
 
 
 @Composable
-fun PopularFastFoodItem(restaurant: Restaurant) {
+fun PopularFastFoodItem(restaurant: Restaurant,navController: NavController) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(5.dp).clickable {
+            navController.navigate("restaurantDetails/${restaurant.id}")
+        }
     ) {
         Image(
             painter = painterResource(id = restaurant.imgUrl), // Replace with your image

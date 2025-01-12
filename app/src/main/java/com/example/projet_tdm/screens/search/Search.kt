@@ -248,7 +248,7 @@ fun PopularFastFoodItem(restaurant: Restaurant) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = restaurant.name,
+            text = restaurant.name ,
             fontSize = 14.sp,
             fontFamily = Sen
         )

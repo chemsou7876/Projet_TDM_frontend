@@ -29,44 +29,93 @@ fun HomeScreen(navController: NavController) {
     var selectedTab by remember { mutableStateOf(0) }
     Scaffold(
         bottomBar = {
-            BottomNavigation(
+            Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .shadow(20.dp, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp), clip = false),
-                backgroundColor = Color(0xFFFFFFFF),
-                elevation = 50.dp // Optional: Adjust elevation if needed
-            ) {
-                BottomNavigationItem(
-
-                    icon = { Icon( painter = painterResource(id = R.drawable.home_nav),modifier=Modifier.size(24.dp),
-                        contentDescription = "Home")},
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
-                BottomNavigationItem(
-                    icon = { Icon( painter = painterResource(id = R.drawable.search),modifier=Modifier.size(24.dp),
-                        contentDescription = "Cart") },
-                    modifier=Modifier.size(50.dp),
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
-                )
-                BottomNavigationItem(
-                    icon = { Icon( painter = painterResource(id = R.drawable.track_nav),modifier=Modifier.size(24.dp),
-                        contentDescription = "Track") },
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 }
-                )
-                BottomNavigationItem(
-                    icon = { Icon( painter = painterResource(id = R.drawable.notif_nav),modifier=Modifier.size(24.dp),
-                        contentDescription = "Notifications") },
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 }
-                )
-                BottomNavigationItem(
-                    icon = { Icon( painter = painterResource(id = R.drawable.profile),modifier=Modifier.size(24.dp), contentDescription = "Profile") },
-                    selected = selectedTab == 4,
-                    onClick = { selectedTab = 4 }
-                )
+                    .shadow(
+                        elevation = 24.dp,
+                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                        spotColor = Color.Black.copy(alpha = 0.25f), // Makes shadow more visible
+                        ambientColor = Color.Black.copy(alpha = 0.25f)
+                    )
+            ){
+                BottomNavigation(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
+                    backgroundColor = Color(0xFFFaFaFa),
+                    elevation = 0.dp // Remove default elevation since we're using custom shadow
+                ){
+                    BottomNavigationItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.home_nav),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Home"
+                            )
+                        },
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        alwaysShowLabel = false,
+                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    )
+                    BottomNavigationItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.search),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Cart"
+                            )
+                        },
+                        modifier = Modifier.size(50.dp),
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        alwaysShowLabel = false,
+                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    )
+                    BottomNavigationItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.track_nav),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Track"
+                            )
+                        },
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        alwaysShowLabel = false,
+                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    )
+                    BottomNavigationItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notif_nav),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Notifications"
+                            )
+                        },
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        alwaysShowLabel = false,
+                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    )
+                    BottomNavigationItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.profile),
+                                modifier = Modifier.size(24.dp),
+                                contentDescription = "Profile"
+                            )
+                        },
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
+                        alwaysShowLabel = false,
+                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    )
+                }
             }
         }
     ) { paddingValues ->
