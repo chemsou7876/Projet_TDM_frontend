@@ -99,7 +99,6 @@ fun ProfilePage(navController: NavController){
                        val addressesJson = gson.toJson(result.user.addresses) // user.addresses is a List<Address>
                        editor.putString("user_addresses", addressesJson)
                        editor.apply()
-
                        navController.navigate("profile"){
                            popUpTo("edit_profile"){ inclusive = true }
                        }

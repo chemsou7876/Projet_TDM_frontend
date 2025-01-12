@@ -149,6 +149,7 @@ fun HomeTab(navController: NavController) {
                 }
                 item { CategoriesSection(navController) }
                 item { OpenRestaurantsSection(navController) }
+
             } else {
                 item {
                     OpenRestaurantsSectionWithSearch(

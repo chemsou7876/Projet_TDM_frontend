@@ -26,6 +26,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.NotificationCompat
 import com.example.projet_tdm.models.PannierSingleton
 import kotlinx.coroutines.delay
@@ -62,11 +71,14 @@ fun TrackTab(
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("user_id", "null")
+    var showRatingDialog by remember { mutableStateOf(false) }
+    var isOrderDelivered by remember { mutableStateOf(false) }
 
     // Initialize PannierSingleton
     LaunchedEffect(Unit) {
         PannierSingleton.initialize(context)
     }
+
 
     // Create Notification Channel
     createNotificationChannel(context)
@@ -76,7 +88,13 @@ fun TrackTab(
     val scope = rememberCoroutineScope()
     val orderId = "67807e4d1a6a3db3b27c68b8"
 
-
+    LaunchedEffect(currentStatuses) {
+        // Check if the last status (delivery) becomes true
+        if (currentStatuses.last().second && !isOrderDelivered) {
+            isOrderDelivered = true
+            showRatingDialog = true
+        }
+    }
     // Durée des étapes
     val stepDurations = listOf(5, 5, 5, 5) // durations in seconds
 
@@ -111,31 +129,51 @@ fun TrackTab(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .fillMaxSize()
-    ) {
-        Text(
-            text = "Order Tracking",
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 10.dp),
-            color = Color(0xFF303030),
-            fontSize = 23.sp,
-            fontFamily = Sen,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        EstimatedDeliveryTime(deliveryTime)
-        Spacer(modifier = Modifier.height(24.dp))
-        currentStatuses.forEachIndexed { index, (status, isActive) ->
-            StatusItem(status, isActive)
-            Spacer(modifier = Modifier.height(16.dp))
+                .padding(horizontal = 20.dp)
+                .fillMaxSize()
+                .blur(if (showRatingDialog) 4.dp else 0.dp)
+        ) {
+            Text(
+                text = "Order Tracking",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 10.dp),
+                color = Color(0xFF303030),
+                fontSize = 23.sp,
+                fontFamily = Sen,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            EstimatedDeliveryTime(deliveryTime)
+            Spacer(modifier = Modifier.height(24.dp))
+            currentStatuses.forEachIndexed { index, (status, isActive) ->
+                StatusItem(status, isActive)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+            DriverInfo(driverNumber)
+            androidx.compose.material.Divider(
+                color = Color(0xFFE0E0E0),
+                thickness = 1.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-        Spacer(modifier = Modifier.height(32.dp))
-        Spacer(modifier = Modifier.height(32.dp))
-        DriverInfo(driverNumber)
+        if (showRatingDialog) {
+            RatingDialog(
+                showDialog = true,
+                onDismiss = { showRatingDialog = false },
+                onSubmit = { rating, feedback ->
+                    // Handle the rating submission here
+                    // You can add API call or database operation
+                    println("Rating: $rating, Feedback: $feedback")
+                    showRatingDialog = false
+                }
+            )
+        }
     }
 }
 
@@ -229,23 +267,138 @@ fun DriverInfo(driverNumber: String) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = Icons.Outlined.Phone,
+            contentDescription = "Phone",
+            tint = Color(0xFFFB6D3A),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Driver's Number:",
             fontSize = 14.sp,
             color = Color.Gray,
             fontFamily = Sen,
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = driverNumber,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = Sen,
-            color = Color(0xFFFB6D3A),
+            color = Color(0xFFA0A5BA),
             modifier = Modifier.clickable {
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$driverNumber"))
                 context.startActivity(intent)
             }
         )
+
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RatingDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onSubmit: (rating: Int, feedback: String) -> Unit
+) {
+    var rating by remember { mutableStateOf(0) }
+    var feedback by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Rate your Experience !",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.W800,
+                    fontFamily = Sen,
+                    color = Color(0xFFFF7622)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Rating Stars
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = if (index < rating) {
+                                Icons.Filled.Star  // Filled star for selected
+                            } else {
+                                Icons.Outlined.StarOutline  // Outlined star for unselected
+                            },
+                            contentDescription = "Star ${index + 1}",
+                            tint = Color(0xFFFF7622),
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable(interactionSource = MutableInteractionSource(), indication = null) { rating = index + 1 }
+                        )
+                        if (index < 4) Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Feedback TextField
+                OutlinedTextField(
+                    value = feedback,
+                    onValueChange = { feedback = it },
+                    placeholder = {
+                        Text(
+                            "Feel free to share your feedback",
+                            color = Color.Gray,
+                            fontFamily = Sen
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp)
+                        .background(Color(0xFFF0F5FA), RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Submit Button
+                Button(
+                    onClick = { onSubmit(rating, feedback) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(62.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF7622)
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        "Submit",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Sen,
+                        color = Color.White
+                    )
+                }
+            }
+        }
     }
 }
