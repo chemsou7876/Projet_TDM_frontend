@@ -2,7 +2,9 @@ package com.example.projet_tdm.navigation
 
 
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,9 +34,22 @@ import com.example.projet_tdm.screens.search.SearchView
 import com.example.projet_tdm.screens.settings.Setting
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(deepLinkUri: Uri? = null) {
     val navController = rememberNavController()
 
+
+    // Handle deep link
+    LaunchedEffect(deepLinkUri) {
+        deepLinkUri?.let { uri ->
+            if (uri.host == "auth" && uri.path == "/google/callback") {
+                navController.navigate("home") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            }
+        }
+    }
+
+    // Your existing NavHost with all routes remains exactly the same
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") { SplashScreen(navController) }
         composable("onboarding") { OnboardingScreen(navController) }

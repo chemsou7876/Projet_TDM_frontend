@@ -1,10 +1,12 @@
 package com.example.projet_tdm.services
 
+import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Call
+import retrofit2.http.GET
 
 
 // Define the request model
@@ -38,6 +40,8 @@ data class SignupResponse(
 interface AuthService {
     @POST("api/auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
+    @GET("api/auth/google")
+    fun loginGoogle(): Call<ResponseBody>
 }
 interface SignupService {
     @POST("api/auth/signup")

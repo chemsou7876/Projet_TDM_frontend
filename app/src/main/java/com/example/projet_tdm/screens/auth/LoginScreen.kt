@@ -1,6 +1,8 @@
 package com.example.projet_tdm.screens.auth
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,6 +34,7 @@ import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.ui.theme.Sen
 import com.google.gson.Gson
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -68,8 +71,8 @@ fun LoginScreen(navController: NavController) {
                 false
             }
             else -> {
-                    emailError = null
-                    true
+                emailError = null
+                true
             }
 
         }
@@ -87,8 +90,8 @@ fun LoginScreen(navController: NavController) {
             }
             else -> {
 
-                    passwordError = null
-                    true
+                passwordError = null
+                true
 
             }
         }
@@ -163,8 +166,11 @@ fun LoginScreen(navController: NavController) {
                         loginMessage = "Login Successful!"
 
                         getInfo(context ,result.user.id )
-                        println("it worked ")
+
                         println(UserSession.userId)
+                        navController.popBackStack("splash", inclusive = true)
+                        navController.popBackStack("onboarding", inclusive = true)
+                        navController.popBackStack("signup", inclusive = true)
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -197,8 +203,14 @@ fun LoginScreen(navController: NavController) {
         })
         isLoginInProgress = false
     }
+    fun loginGoogle(context: Context) {
 
-        Column(
+        val googleSignInUrl = "https://deliveryfood-backend-yyxy.onrender.com/api/auth/google"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(googleSignInUrl))
+        context.startActivity(intent)
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -319,7 +331,7 @@ fun LoginScreen(navController: NavController) {
             // Login Button with validation
             Button(
                 onClick = {
-                    println("herreeeeee")
+
                     val isEmailValid = validateEmail()
                     val isPasswordValid = validatePassword()
 
@@ -383,18 +395,12 @@ fun LoginScreen(navController: NavController) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
+
             ) {
-                SocialLoginButton(
-                    icon = R.drawable.ic_facebook,
-                    onClick = { /* Facebook login */ }
-                )
-                SocialLoginButton(
-                    icon = R.drawable.ic_twitter,
-                    onClick = { /* Twitter login */ }
-                )
+
                 SocialLoginButton(
                     icon = R.drawable.google_logo,
-                    onClick = { /* Google login */ }
+                    onClick = {loginGoogle(context) }
                 )
             }
         }
