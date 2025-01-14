@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +52,24 @@ import com.example.projet_tdm.ui.theme.Sen
 @Composable
 fun SearchTab(navController: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    var filteredRestaurants by remember { mutableStateOf(getData()) }
     val restaurants = getData()
+
+    // Filter function
+    fun filterRestaurants(query: String) {
+        var results = getData()
+
+        // Apply text search if query is not empty
+        if (query.isNotEmpty()) {
+            results = results.filter { restaurant ->
+                restaurant.name.contains(query, ignoreCase = true) ||
+                        restaurant.typeCuisine.contains(query, ignoreCase = true) ||
+                        restaurant.localisation.contains(query, ignoreCase = true)
+            }
+        }
+
+        filteredRestaurants = results
+    }
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 20.dp)
@@ -63,98 +81,134 @@ fun SearchTab(navController: NavController) {
 
         // Search Bar
         item {
-            SearchBarwithoutFilter(searchText = searchText, onValueChange = { newValue ->
-                searchText = newValue
-
-            },)
-        }
-
-        // Suggested Restaurants Section Header
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Suggested Restaurants",
-                    fontSize = 18.sp,
-                    fontFamily = Sen
-                )
-                TextButton(onClick = { /* See all action */ }) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.arrow_right_simple),
-                            contentDescription = "Arrow Right Icon",
-                            modifier = Modifier.size(7.dp)
-                        )
-                    }
+            SearchBarwithoutFilter(
+                searchText = searchText,
+                onValueChange = { newValue ->
+                    searchText = newValue
+                    filterRestaurants(newValue.text)
                 }
-            }
-        }
-
-        // Suggested Restaurants Items
-        items(restaurants.take(4)) { restaurant ->
-            SuggestedRestaurantItem(restaurant = restaurant,navController = navController)
-            Divider(
-                color = Color(0xFFE3EBF2),
-                thickness = 0.5.dp,
-                modifier = Modifier.padding(vertical = 1.dp)
             )
         }
 
-        // Popular Fast Food Section Header
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Popular Fast Food",
-                    fontSize = 18.sp,
-                    fontFamily = Sen
-                )
-                TextButton(onClick = { /* See all action */ }) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.arrow_right_simple),
-                            contentDescription = "Arrow Right Icon",
-                            modifier = Modifier.size(7.dp)
-                        )
+        if (searchText.text.isEmpty()) {
+            // Suggested Restaurants Section Header
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Suggested Restaurants",
+                        fontSize = 18.sp,
+                        fontFamily = Sen
+                    )
+                    TextButton(onClick = { /* See all action */ }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.arrow_right_simple),
+                                contentDescription = "Arrow Right Icon",
+                                modifier = Modifier.size(7.dp)
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        // Popular Fast Food Grid
-        item {
-            val selectedRestaurants = if (restaurants.size > 9) {
-                restaurants.subList(4, 10)
-            } else {
-                restaurants.subList(4, restaurants.size)
+            // Suggested Restaurants Items
+            items(restaurants.take(4)) { restaurant ->
+                SuggestedRestaurantItem(restaurant = restaurant, navController = navController)
+                Divider(
+                    color = Color(0xFFE3EBF2),
+                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 1.dp)
+                )
             }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.height(((selectedRestaurants.size + 1) / 2 * 240).dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(selectedRestaurants) { restaurant ->
-                    PopularFastFoodItem(restaurant = restaurant,navController=navController)
+            // Popular Fast Food Section Header
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Popular Fast Food",
+                        fontSize = 18.sp,
+                        fontFamily = Sen
+                    )
+                    TextButton(onClick = { /* See all action */ }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(text = "See All", fontFamily = Sen, color = Color(0xFFA0A5BA))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.arrow_right_simple),
+                                contentDescription = "Arrow Right Icon",
+                                modifier = Modifier.size(7.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Popular Fast Food Grid
+            item {
+                val selectedRestaurants = if (restaurants.size > 9) {
+                    restaurants.subList(4, 10)
+                } else {
+                    restaurants.subList(4, restaurants.size)
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.height(((selectedRestaurants.size + 1) / 2 * 240).dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(selectedRestaurants) { restaurant ->
+                        PopularFastFoodItem(restaurant = restaurant, navController = navController)
+                    }
+                }
+            }
+        } else {
+            // Show search results
+            item {
+                if (filteredRestaurants.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No restaurants found for \"${searchText.text}\"",
+                            color = Color.Gray,
+                            fontFamily = Sen
+                        )
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        filteredRestaurants.forEach { restaurant ->
+                            SuggestedRestaurantItem(restaurant = restaurant, navController = navController)
+                            Divider(
+                                color = Color(0xFFE3EBF2),
+                                thickness = 0.5.dp,
+                                modifier = Modifier.padding(vertical = 1.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -165,7 +219,6 @@ fun SearchTab(navController: NavController) {
         }
     }
 }
-
 @Composable
 fun HeaderSearch(navController: NavController){
     val context = LocalContext.current

@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +48,7 @@ import com.example.projet_tdm.services.ApiInfoClient
 import com.example.projet_tdm.services.InfoResponse
 import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UpdateRequest
+import com.example.projet_tdm.ui.theme.Sen
 import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
@@ -130,26 +135,30 @@ fun ProfilePage(navController: NavController){
 
 
 
-    Column(modifier = Modifier.padding((8.dp)).fillMaxSize()
+    Column(modifier = Modifier.padding((8.dp)).fillMaxSize(),
 
-        , verticalArrangement = Arrangement.SpaceBetween
+         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.back_icon),
-                contentDescription = "Default Profile Image",
-                modifier = Modifier.size(55.dp).clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    navController.navigate("profile") // Navigate to the HomeScreen when clicked
-                },
-                contentScale = ContentScale.Crop
-            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(40.dp)
+                    .background(Color.White, CircleShape)
+                    .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { navController.navigateUp() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    contentDescription = "Back",
+                    tint = Color.Black,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             Spacer(modifier = Modifier.width(10.dp))
             Text(text ="Edit profile",
-                fontSize = 20.sp)
+                fontSize = 20.sp, fontFamily = Sen, )
 
         }
 

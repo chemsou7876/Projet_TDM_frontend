@@ -2,8 +2,10 @@ package com.example.projet_tdm.screens.profile
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +44,7 @@ import com.example.projet_tdm.services.InfoResponse
 import com.example.projet_tdm.services.LoginResponse
 import com.example.projet_tdm.services.UpdateRequest
 import com.example.projet_tdm.services.UserSession
+import com.example.projet_tdm.ui.theme.Sen
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import retrofit2.Call
@@ -138,22 +145,27 @@ fun Adresses(navController: NavController){
         ) {
             // Top row with image and "My Addresses"
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.back_icon),
-                    contentDescription = "Default Profile Image",
+                Box(
                     modifier = Modifier
-                        .size(55.dp)
-                        .clickable {
-                            navController.navigate("Profile") // navigate to the settings page
-                        },
-                    contentScale = ContentScale.Crop
-                )
+                        .padding(16.dp)
+                        .size(40.dp)
+                        .background(Color.White, CircleShape)
+                        .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { navController.navigateUp() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        tint = Color.Black,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text ="My Addresses", fontSize = 20.sp)
+                Text(text ="My Addresses", fontSize = 20.sp, fontFamily = Sen)
             }
             if(items.isEmpty()){
               Column (modifier = Modifier.fillMaxWidth().padding(30.dp) , horizontalAlignment = Alignment.CenterHorizontally){   Text("You Have no adresses yet ! ",
-                  color = Color(0xFFFF7622) , fontWeight = FontWeight.W700 , fontSize = 15.sp) }
+                  color = Color(0xFFFF7622) , fontWeight = FontWeight.W700 , fontSize = 15.sp,fontFamily = Sen) }
             }
             LazyColumn(
                 modifier = Modifier.weight(1f)  // Use weight so LazyColumn fills remaining space in Column

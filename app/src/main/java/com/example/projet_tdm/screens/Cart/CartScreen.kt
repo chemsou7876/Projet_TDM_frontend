@@ -267,7 +267,8 @@ fun CartItem(
 @Composable
 fun ExpandableDeliverySection(totalPrice: Int, deliveryPrice: Int) {
     var isExpanded by remember { mutableStateOf(false) }
-    var address by remember { mutableStateOf("2118 Thornridge Cir. Syracuse") }
+    var address by remember { mutableStateOf("\n" +
+            "Ecole Nationale Supérieure d'Informatique (Ex. INI)") }
     var notes by remember { mutableStateOf("") }
 
     Column(

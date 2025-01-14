@@ -61,7 +61,7 @@ fun getData():List<Restaurant> {
                 Menu(2, "Poulet Grillé", R.drawable.poulet_grille, 1800, "Poulet grillé tendre accompagné d'une garniture savoureuse.",category="Plat",preparationTime=12),
                 Menu(3, "Chicken Wings", R.drawable.chicken_wings, 1500, "Ailes de poulet croustillantes avec une sauce épicée.",category="Plat",preparationTime=12),
                 Menu(4, "Nuggets", R.drawable.nuggets, 800, "Bouchées de poulet dorées, parfaites pour un snack rapide.",category="Plat",preparationTime=12),
-                Menu(5, "Salade Méditerranéenne", R.drawable.salade_mediterraneenne, 1000, "Salade fraîche avec des légumes méditerranéens et une vinaigrette légère.",category="mo9bilat",preparationTime=12)
+                Menu(5, "Salade Méditerranéenne", R.drawable.salade_mediterraneenne, 1000, "Salade fraîche avec des légumes méditerranéens et une vinaigrette légère.", category="Salade",preparationTime=12)
             )
 
         )

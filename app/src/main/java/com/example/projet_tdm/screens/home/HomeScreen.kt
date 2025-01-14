@@ -27,7 +27,20 @@ import com.example.projet_tdm.screens.settings.Setting
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    var selectedTab by remember { mutableStateOf(0) }
+    // Get the selectedTab parameter from navigation
+    val selectedTabParam = navController.currentBackStackEntry
+        ?.arguments?.getString("selectedTab")?.toIntOrNull()
+
+    var selectedTab by remember {
+        mutableStateOf(selectedTabParam ?: 0)
+    }
+
+    LaunchedEffect(selectedTabParam) {
+        selectedTabParam?.let {
+            selectedTab = it
+        }
+    }
+
     Scaffold(
         bottomBar = {
             Box(
@@ -35,16 +48,16 @@ fun HomeScreen(navController: NavController) {
                     .shadow(
                         elevation = 24.dp,
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                        spotColor = Color.Black.copy(alpha = 0.25f), // Makes shadow more visible
+                        spotColor = Color.Black.copy(alpha = 0.25f),
                         ambientColor = Color.Black.copy(alpha = 0.25f)
                     )
-            ){
+            ) {
                 BottomNavigation(
                     modifier = Modifier
                         .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
                     backgroundColor = Color(0xFFFaFaFa),
-                    elevation = 0.dp // Remove default elevation since we're using custom shadow
-                ){
+                    elevation = 0.dp
+                ) {
                     BottomNavigationItem(
                         icon = {
                             Icon(
@@ -56,7 +69,7 @@ fun HomeScreen(navController: NavController) {
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
                         alwaysShowLabel = false,
-                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        selectedContentColor = Color(0xFFFFA500),
                         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                     )
                     BottomNavigationItem(
@@ -71,7 +84,7 @@ fun HomeScreen(navController: NavController) {
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
                         alwaysShowLabel = false,
-                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        selectedContentColor = Color(0xFFFFA500),
                         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                     )
                     BottomNavigationItem(
@@ -85,7 +98,7 @@ fun HomeScreen(navController: NavController) {
                         selected = selectedTab == 2,
                         onClick = { selectedTab = 2 },
                         alwaysShowLabel = false,
-                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        selectedContentColor = Color(0xFFFFA500),
                         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                     )
                     BottomNavigationItem(
@@ -99,7 +112,7 @@ fun HomeScreen(navController: NavController) {
                         selected = selectedTab == 3,
                         onClick = { selectedTab = 3 },
                         alwaysShowLabel = false,
-                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        selectedContentColor = Color(0xFFFFA500),
                         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                     )
                     BottomNavigationItem(
@@ -113,7 +126,7 @@ fun HomeScreen(navController: NavController) {
                         selected = selectedTab == 4,
                         onClick = { selectedTab = 4 },
                         alwaysShowLabel = false,
-                        selectedContentColor = Color(0xFFFFA500), // Orange color for selected item
+                        selectedContentColor = Color(0xFFFFA500),
                         unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                     )
                 }
@@ -125,16 +138,17 @@ fun HomeScreen(navController: NavController) {
                 0 -> HomeTab(navController)
                 1 -> SearchTab(navController)
                 2 -> TrackTab(
-                startTrackingTime = true,
-                onBackClick = { selectedTab = 0 },  // Navigate back to home tab
-                driverNumber = "+1234567890"  // Replace with actual driver number
-            )
+                    startTrackingTime = true,
+                    onBackClick = { selectedTab = 0 },
+                    driverNumber = "+1234567890"
+                )
                 3 -> NotificationsTab()
                 4 -> ProfilTab(navController)
             }
         }
     }
 }
+
 
 // Create separate composables for each tab content
 @Composable
