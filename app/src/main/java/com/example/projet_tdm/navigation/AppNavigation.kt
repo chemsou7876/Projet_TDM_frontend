@@ -3,9 +3,11 @@ package com.example.projet_tdm.navigation
 
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.projet_tdm.models.getData
 import com.example.projet_tdm.screens.Cart.CartScreen
 import com.example.projet_tdm.screens.MenuView.MenuView
@@ -17,6 +19,7 @@ import com.example.projet_tdm.screens.auth.LoginScreen
 import com.example.projet_tdm.screens.auth.SignUpScreen
 import com.example.projet_tdm.screens.auth.ForgotPasswordScreen
 import com.example.projet_tdm.screens.auth.OtpScreen
+import com.example.projet_tdm.screens.categories.CategoryScreen
 import com.example.projet_tdm.screens.home.HomeScreen
 import com.example.projet_tdm.screens.home.tabs.ProfilTab
 import com.example.projet_tdm.screens.profile.UploadProfileScreen
@@ -69,6 +72,12 @@ fun AppNavigation() {
     }
 }
         composable("searchView"){ SearchView() }
-
+        composable(
+            route = "category/{categoryName}",
+            arguments = listOf(navArgument("categoryName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+            CategoryScreen(navController = navController, category = categoryName)
+        }
     }
 }

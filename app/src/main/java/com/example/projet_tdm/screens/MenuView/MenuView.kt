@@ -259,7 +259,7 @@ fun MenuView(navController: NavController, menu: Menu, restaurant: Restaurant) {
                             deliveryFee = 0.0
                         )
                         PannierSingleton.addOrder(order)
-                       // navController.navigate("cart")
+                        navController.navigate("cart")
                     } catch (e: Exception) {
                         // Show error message to user
                         Toast.makeText(

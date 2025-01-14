@@ -104,8 +104,9 @@ fun HomeTab(navController: NavController) {
 
                 // Filter by rating
                 val ratingMatch = restaurant.noteMoy >= 3.5
-
-                deliveryTimeMatch && priceInRange && ratingMatch
+                val cuisineTypeMatch = filterState.cuisineTypes.selectedTypes.isEmpty() ||
+                        filterState.cuisineTypes.selectedTypes.contains(restaurant.typeCuisine)
+                deliveryTimeMatch && priceInRange && ratingMatch && cuisineTypeMatch
             }
         }
 
@@ -362,7 +363,9 @@ fun CategoriesSection(navController: NavController) {
             items(categories) { category ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp).clickable {
+                        navController.navigate("category/${category}")
+                    }
                 ) {
                     Box(
                         modifier = Modifier

@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,12 +44,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.projet_tdm.ui.theme.Sen
 import androidx.compose.material3.RangeSlider
+import com.example.projet_tdm.models.getData
+
 
 data class PricingState(
     val priceRange: ClosedFloatingPointRange<Float> = 0f..10000f,
     val currentRange: ClosedFloatingPointRange<Float> = 0f..10000f
 )
 
+data class CuisineTypeState(
+    val selectedTypes: Set<String> = emptySet()
+)
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FilterDialog(
     onDismiss: () -> Unit,
@@ -57,9 +65,12 @@ fun FilterDialog(
     var selectedDeliveryTime by remember { mutableStateOf(DeliveryTimeState()) }
     var selectedPricing by remember { mutableStateOf(PricingState()) }
     var selectedRating by remember { mutableStateOf(RatingState()) }
+    var selectedCuisineTypes by remember { mutableStateOf(CuisineTypeState()) }
 
-
-    // Calculate the current price based on slider position
+    // Extract unique cuisine types from the restaurant data
+    val cuisineTypes = remember {
+        getData().map { it.typeCuisine }.distinct().sorted()
+    }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Box(
@@ -70,10 +81,9 @@ fun FilterDialog(
                 .padding(16.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // Previous header code remains the same...
+                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -94,7 +104,42 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                // Delivery Time section remains the same...
+                // Cuisine Types Section
+                Text(
+                    text = "CUISINE TYPES",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
+                    fontFamily = Sen,
+                    color = Color(0xFF32343E)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    cuisineTypes.forEach { cuisineType ->
+                        FilterChip(
+                            label = cuisineType,
+                            selected = selectedCuisineTypes.selectedTypes.contains(cuisineType),
+                            onSelected = { selected ->
+                                selectedCuisineTypes = if (selected) {
+                                    selectedCuisineTypes.copy(
+                                        selectedTypes = selectedCuisineTypes.selectedTypes + cuisineType
+                                    )
+                                } else {
+                                    selectedCuisineTypes.copy(
+                                        selectedTypes = selectedCuisineTypes.selectedTypes - cuisineType
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Delivery Time section
                 Text(
                     text = "DELIVER TIME",
                     fontWeight = FontWeight.Normal,
@@ -123,7 +168,7 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Updated Pricing Section
+                // Pricing Section
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -180,7 +225,7 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Rating section remains the same...
+                // Rating section
                 Text(
                     text = "RATING",
                     fontWeight = FontWeight.Normal,
@@ -214,11 +259,21 @@ fun FilterDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Filter button remains the same...
+                // Filter button
                 TextButton(
-                    onClick = { onFilterApply(FilterState(selectedDeliveryTime, selectedPricing, selectedRating)) },
-                    modifier = Modifier.fillMaxWidth().height(60.dp).clip(shape = RoundedCornerShape(10.dp)),
-                    colors =  androidx.compose.material.ButtonDefaults.textButtonColors(Color(0xFFFF7622))
+                    onClick = {
+                        onFilterApply(FilterState(
+                            selectedDeliveryTime,
+                            selectedPricing,
+                            selectedRating,
+                            selectedCuisineTypes
+                        ))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .clip(shape = RoundedCornerShape(10.dp)),
+                    colors = androidx.compose.material.ButtonDefaults.textButtonColors(Color(0xFFFF7622))
                 ) {
                     Text(text = "FILTER", color = Color.White, fontWeight = FontWeight.Bold)
                 }
@@ -226,6 +281,14 @@ fun FilterDialog(
         }
     }
 }
+
+// Update FilterState to include cuisine types
+data class FilterState(
+    val deliveryTime: DeliveryTimeState,
+    val pricing: PricingState,
+    val rating: RatingState,
+    val cuisineTypes: CuisineTypeState
+)
 
 @Composable
 fun FilterChip(label: String, selected: Boolean, onSelected: (Boolean) -> Unit) {
@@ -274,11 +337,4 @@ data class RatingState(
     val star3: Boolean = false,
     val star4: Boolean = false,
     val star5: Boolean = false
-)
-
-// Structure pour transmettre les filtres
-data class FilterState(
-    val deliveryTime: DeliveryTimeState,
-    val pricing: PricingState,
-    val rating: RatingState
 )
