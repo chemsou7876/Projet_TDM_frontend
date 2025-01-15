@@ -28,6 +28,7 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Star
@@ -92,7 +93,6 @@ fun TrackTab(
         // Check if the last status (delivery) becomes true
         if (currentStatuses.last().second && !isOrderDelivered) {
             isOrderDelivered = true
-            showRatingDialog = true
         }
     }
     // Durée des étapes
@@ -134,7 +134,6 @@ fun TrackTab(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .fillMaxSize()
-                .blur(if (showRatingDialog) 4.dp else 0.dp)
         ) {
             Text(
                 text = "Order Tracking",
@@ -312,15 +311,31 @@ fun RatingDialog(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
+                .background(Color.Transparent)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    .background(Color.White, RoundedCornerShape(20.dp))
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.align(Alignment.CenterEnd) // Alignement à droite
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+
                 Text(
                     text = "Rate your Experience !",
                     fontSize = 24.sp,
@@ -328,6 +343,7 @@ fun RatingDialog(
                     fontFamily = Sen,
                     color = Color(0xFFFF7622)
                 )
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 

@@ -1,5 +1,7 @@
 package com.example.projet_tdm.screens.RestaurantView
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Call
@@ -32,6 +35,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,9 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,13 +57,76 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
+import com.example.projet_tdm.screens.home.tabs.RatingDialog
 import com.example.projet_tdm.screens.search.MenuBox
 import com.example.projet_tdm.screens.search.MenuBoxx
 import com.example.projet_tdm.ui.theme.Sen
+import com.example.projet_tdm.services.UserSession
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
+data class Review(
+    val name: String,
+    val rating: Int,
+    val comment: String
+)
+
+// Helper object to manage review storage
+object ReviewStorage {
+    private const val PREF_NAME = "reviews_storage"
+    private const val KEY_REVIEWS_PREFIX = "restaurant_reviews_"
+
+    fun saveReviews(context: Context, restaurantId: Int, reviews: List<Review>) {
+        val sharedPrefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = gson.toJson(reviews)
+        sharedPrefs.edit().putString("${KEY_REVIEWS_PREFIX}$restaurantId", json).apply()
+    }
+
+    fun loadReviews(context: Context, restaurantId: Int): List<Review> {
+        val sharedPrefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPrefs.getString("${KEY_REVIEWS_PREFIX}$restaurantId", null)
+        return if (json != null) {
+            val type = object : TypeToken<List<Review>>() {}.type
+            gson.fromJson(json, type)
+        } else {
+            sampleReviews // Return default reviews if none stored
+        }
+    }
+}
+
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant) {
+    var showDialog by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("Burger") }
+    var showRatingDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val reviewsPrefs = context.getSharedPreferences("reviews_${restaurant.id}", Context.MODE_PRIVATE)
+    val userPrefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+
+    var reviews = remember { mutableStateOf(sampleReviews.toMutableList()) }  // Mutable list for reviews
+
+    val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+    val userName = sharedPreferences.getString("user_name", "No Name")
+
+    // Load saved reviews
+    val savedReviews = remember {
+        val reviewsSet = reviewsPrefs.getStringSet("reviews", setOf()) ?: setOf()
+        val loadedReviews = reviewsSet.map { reviewString ->
+            val parts = reviewString.split("|||")
+            Review(
+                name = parts[0],
+                rating = parts[1].toInt(),
+                comment = parts[2]
+            )
+        }
+        mutableStateOf(if (loadedReviews.isEmpty()) sampleReviews.toMutableList() else loadedReviews.toMutableList())
+    }
+
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -283,17 +352,63 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
         }
 
         item {
-            // Reviews Section
-            Text(
-                text = "Reviews",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp),
-                fontFamily = Sen,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                // Reviews Section
+                Text(
+                    text = "Reviews",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    fontFamily = Sen,
+                )
+                Spacer(modifier = Modifier.width(120.dp))
+                Text(
+                    text = "Add your review",
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                        .padding(end = 12.dp)
+                        .clickable { showRatingDialog = true },
+                    fontFamily = Sen,
+                    color = Color.Gray,
+                )
+            }
+
+            // Appelle le composable RatingDialog
+            if (showRatingDialog) {
+                RatingDialog(
+                    showDialog = true,
+                    onDismiss = { showRatingDialog = false },
+                    onSubmit = { rating, feedback ->
+                        val newReview = Review(
+                            name = userName ?: "Anonymous",
+                            rating = rating,
+                            comment = feedback
+                        )
+
+                        // Add new review to the list
+                        savedReviews.value = savedReviews.value.toMutableList().apply {
+                            add(newReview)
+                        }
+
+                        // Save to SharedPreferences
+                        val reviewStrings = savedReviews.value.map { review ->
+                            "${review.name}|||${review.rating}|||${review.comment}"
+                        }.toSet()
+
+                        reviewsPrefs.edit().putStringSet("reviews", reviewStrings).apply()
+
+                        showRatingDialog = false
+                    }
+                )
+            }
         }
 
-        items(sampleReviews) { review ->
+        items(savedReviews.value) { review ->
             ReviewCard(
                 name = review.name,
                 rating = review.rating,
@@ -360,12 +475,6 @@ fun ReviewCard(name: String, rating: Int, review: String) {
     }
 }
 
-data class Review(
-    val name: String,
-    val rating: Int,
-    val comment: String
-)
-
 val sampleReviews = listOf(
     Review("Rania Sbr", 5, "Amazing food! The burgers are absolutely delicious. Will definitely come back!"),
     Review("John Doe", 4, "Great atmosphere and friendly staff. The pizza was fantastic."),
@@ -378,3 +487,4 @@ val sampleReviews = listOf(
     Review("Maria Garcia", 5, "Excellent service! The waiter was very attentive."),
     Review("Tom Anderson", 4, "Nice variety of options. The desserts are must-try!")
 )
+
