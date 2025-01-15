@@ -26,18 +26,18 @@ import com.example.projet_tdm.screens.profile.ProfilePage
 import com.example.projet_tdm.screens.settings.Setting
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController,  selectTab: Int = 0) {
+
     // Get the selectedTab parameter from navigation
+    var selectedTab by remember { mutableStateOf(selectTab) }
     val selectedTabParam = navController.currentBackStackEntry
         ?.arguments?.getString("selectedTab")?.toIntOrNull()
 
-    var selectedTab by remember {
-        mutableStateOf(selectedTabParam ?: 0)
-    }
+
 
     LaunchedEffect(selectedTabParam) {
-        selectedTabParam?.let {
-            selectedTab = it
+        TabNavigationState.setTabSelector { newTab ->
+            selectedTab = newTab
         }
     }
 
@@ -139,8 +139,7 @@ fun HomeScreen(navController: NavController) {
                 1 -> SearchTab(navController)
                 2 -> TrackTab(
                     startTrackingTime = true,
-                    onBackClick = { selectedTab = 0 },
-                    driverNumber = "+1234567890"
+                  //  onBackClick = { selectedTab = 0 },
                 )
                 3 -> NotificationsTab()
                 4 -> ProfilTab(navController)

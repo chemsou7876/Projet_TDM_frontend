@@ -56,8 +56,6 @@ val notificationChannelDescription = "Notifications for order status updates"
 @Composable
 fun TrackTab(
     startTrackingTime: Boolean,
-    onBackClick: () -> Unit,
-    driverNumber: String,
     restaurantName: String = "Uttora Coffee House",
     orderDetails: String = "Ordered At 15 jan, 16:00pm",
     deliveryTime: String = "20 min",
@@ -68,6 +66,7 @@ fun TrackTab(
         "Your Order is here!" to false
     )
 ) {
+    val driverNumber = "0782683513"
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("user_id", "null")

@@ -54,8 +54,10 @@ fun LocationScreen(navController: NavController) {
             scope.launch {
                 getCurrentLocation(context) { lat, lng ->
                     saveLocation(context, lat, lng)
-                    navController.navigate("home") {
+                    navController.navigate("home/0") {
                         popUpTo("splash") { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             }
@@ -96,7 +98,7 @@ fun LocationScreen(navController: NavController) {
                         try {
                             getCurrentLocation(context) { lat, lng ->
                                 saveLocation(context, lat, lng)
-                                navController.navigate("home") {
+                                navController.navigate("home/0") {
                                     popUpTo("splash") { inclusive = true }
                                 }
                             }

@@ -171,7 +171,7 @@ fun LoginScreen(navController: NavController) {
                         navController.popBackStack("splash", inclusive = true)
                         navController.popBackStack("onboarding", inclusive = true)
                         navController.popBackStack("signup", inclusive = true)
-                        navController.navigate("home") {
+                        navController.navigate("home/0") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {

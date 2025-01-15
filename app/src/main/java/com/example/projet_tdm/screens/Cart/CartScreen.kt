@@ -27,10 +27,12 @@ import com.example.projet_tdm.models.PannierSingleton
 import androidx.compose.material.icons.filled.ShoppingCart  // Add this import
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.window.DialogProperties
 import com.example.projet_tdm.R
 import com.example.projet_tdm.components.BackButton
 import com.example.projet_tdm.components.CustomTextField
 import com.example.projet_tdm.components.OrangeButton
+import com.example.projet_tdm.screens.home.TabNavigationState
 import com.example.projet_tdm.ui.theme.Sen
 
 data class CartItemModel(
@@ -41,11 +43,68 @@ data class CartItemModel(
 
 @Composable
 fun CartScreen(navController: NavController) {
+    var showConfirmationDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var isEditing by remember { mutableStateOf(false) }
     val pannier = PannierSingleton.pannier
     val deliveryPrice = 4
+    if (showConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDialog = false },
+            title = {
+                Text(
+                    "Order Confirmation",
+                  //  style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFF7622)  // Orange color
+                )
+            },
+            text = {
+                Text(
+                    "Your order has been placed successfully!",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        PannierSingleton.clearCart()
+                        showConfirmationDialog = false
+                        navController.navigate("home/2") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color(0xFFFF7622)  // Orange color
+                    )
+                ) {
+                    Text(
+                        "Done",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showConfirmationDialog = false },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.Gray
+                    )
+                ) {
+                    Text(
+                        "Cancel",
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            },
 
+            shape = RoundedCornerShape(16.dp),
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        )
+    }
     // Load orders from local storage when the screen is composed
     LaunchedEffect(Unit) {
         PannierSingleton.initialize(context)
@@ -150,7 +209,12 @@ fun CartScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
             ExpandableDeliverySection(totalPrice = totalPrice.toInt(), deliveryPrice = deliveryPrice)
             Spacer(modifier = Modifier.height(16.dp))
-            OrangeButton(text = "Place order", onClick = { })
+            OrangeButton(text = "Place order", onClick = {
+                showConfirmationDialog = true
+                // pop up saying your order has been placed and when i click on done i navigate to tracking
+                // empty my cart
+
+            })
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
