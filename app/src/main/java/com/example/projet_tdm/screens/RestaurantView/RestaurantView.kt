@@ -22,19 +22,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,18 +49,90 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projet_tdm.R
 import com.example.projet_tdm.models.Restaurant
-import com.example.projet_tdm.screens.search.MenuBox
 import com.example.projet_tdm.screens.search.MenuBoxx
+import com.example.projet_tdm.services.RetrofitClient
+import com.example.projet_tdm.services.Review
+import com.example.projet_tdm.services.ReviewsResponse
 import com.example.projet_tdm.ui.theme.Sen
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant) {
     var selectedCategory by remember { mutableStateOf("Burger") }
+    var reviews by remember { mutableStateOf<List<Review>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    @Composable
+    fun NoReviewsPlaceholder() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Icon
+            Icon(
+                imageVector = Icons.Outlined.Comment, // Use a star outline icon
+                contentDescription = "No Reviews",
+                modifier = Modifier.size(64.dp),
+                tint = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            // Message
+            Text(
+                text = "No reviews available.",
+                fontSize = 18.sp,
+                color = Color.Gray,
+                fontFamily = Sen,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+    // Fetch reviews when the composable is first launched
+    LaunchedEffect(restaurant.restaurant_id) {
+        RetrofitClient.instance.getReviewsForRestaurant(restaurant.restaurant_id).enqueue(
+            object : Callback<ReviewsResponse> {
+                override fun onResponse(
+                    call: Call<ReviewsResponse>,
+                    response: Response<ReviewsResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val reviewsResponse = response.body()
+                        if (reviewsResponse != null) {
+                            println("Reviews fetched: ${reviewsResponse.reviews}") // Debug log
+                            reviews = reviewsResponse.reviews
+                        } else {
+                            error = "No reviews found."
+                            println("No reviews found in response.") // Debug log
+                            reviews = emptyList() // Set reviews to an empty list
+                        }
+                    } else {
+                        error = "Failed to fetch reviews: ${response.message()}"
+                        println("Error fetching reviews: ${response.message()}") // Debug log
+                        println("Error body: ${response.errorBody()?.string()}") // Debug log
+                    }
+                    isLoading = false
+                }
+
+                override fun onFailure(call: Call<ReviewsResponse>, t: Throwable) {
+                    error = "Error: ${t.localizedMessage}"
+                    println("Exception fetching reviews: ${t.localizedMessage}") // Debug log
+                    t.printStackTrace() // Print full stack trace
+                    isLoading = false
+                }
+            }
+        )
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -65,9 +140,8 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Box (modifier = Modifier.padding(top = 16.dp)){
-
-                // Image principale (keep your existing Image composable)
+            // Existing restaurant details UI
+            Box(modifier = Modifier.padding(top = 16.dp)) {
                 Image(
                     painter = painterResource(id = restaurant.imgUrl),
                     contentDescription = null,
@@ -76,10 +150,7 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                         .fillMaxWidth()
                         .height(200.dp)
                         .clip(RoundedCornerShape(15.dp))
-
                 )
-
-                // Back arrow with circular background
                 Box(
                     modifier = Modifier
                         .padding(16.dp)
@@ -93,9 +164,9 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                         contentDescription = "Back",
                         tint = Color.Black,
                         modifier = Modifier
-                        .size(24.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { navController.popBackStack() }
-)
+                            .size(24.dp)
+                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { navController.popBackStack() }
+                    )
                 }
             }
 
@@ -154,7 +225,6 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Nom du restaurant
             Text(
                 text = restaurant.name,
                 fontSize = 24.sp,
@@ -165,7 +235,6 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Note moyenne et type de cuisine
             Text(
                 text = "${restaurant.typeCuisine} - ${restaurant.localisation}",
                 fontSize = 16.sp,
@@ -175,7 +244,6 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Description
             Text(
                 text = restaurant.description,
                 fontSize = 16.sp,
@@ -249,7 +317,7 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
                             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { selectedCategory = category }
                             .clip(RoundedCornerShape(50))
                             .background(if (isSelected) Color(0xFFFFA500) else Color.Transparent)
-                            .border(1.dp,if (isSelected) Color(0x00FFA500) else Color(0xFFEDEDED), RoundedCornerShape(50))
+                            .border(1.dp, if (isSelected) Color(0x00FFA500) else Color(0xFFEDEDED), RoundedCornerShape(50))
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
@@ -293,12 +361,23 @@ fun RestaurantDetailsScreen(navController: NavController, restaurant: Restaurant
             )
         }
 
-        items(sampleReviews) { review ->
-            ReviewCard(
-                name = review.name,
-                rating = review.rating,
-                review = review.comment
-            )
+        if (isLoading) {
+            item {
+                CircularProgressIndicator()
+            }
+        } else if (error != null) {
+
+            item {
+                NoReviewsPlaceholder() // Show the placeholder when there are no reviews
+            }}
+        else {
+            items(reviews) { review ->
+                ReviewCard(
+                    name = review.userName,
+                    rating = review.rating,
+                    review = review.comment
+                )
+            }
         }
     }
 }
@@ -325,26 +404,16 @@ fun ReviewCard(name: String, rating: Int, review: String) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = name, style = MaterialTheme.typography.titleMedium,fontFamily = Sen)
+                    Text(text = name, style = MaterialTheme.typography.titleMedium, fontFamily = Sen)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Row {
-                    // Display 5 stars total
                     repeat(5) { index ->
                         Icon(
                             modifier = Modifier.size(20.dp),
-                            // Use filled star for ratings up to the current rating
-                            imageVector = if (index < rating) {
-                                Icons.Filled.Star
-                            } else {
-                                Icons.Outlined.Star // or Icons.Default.StarBorder
-                            },
+                            imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = null,
-                            tint = if (index < rating) {
-                                Color(0xFFFFA500) // Orange for filled stars
-                            } else {
-                                Color.Gray // Gray for unfilled stars
-                            }
+                            tint = if (index < rating) Color(0xFFFFA500) else Color.Gray
                         )
                     }
                 }
@@ -360,21 +429,3 @@ fun ReviewCard(name: String, rating: Int, review: String) {
     }
 }
 
-data class Review(
-    val name: String,
-    val rating: Int,
-    val comment: String
-)
-
-val sampleReviews = listOf(
-    Review("Rania Sbr", 5, "Amazing food! The burgers are absolutely delicious. Will definitely come back!"),
-    Review("John Doe", 4, "Great atmosphere and friendly staff. The pizza was fantastic."),
-    Review("Sarah Smith", 3, "Decent food but the service was a bit slow."),
-    Review("Mike Johnson", 5, "Best restaurant in town! Love their signature dishes."),
-    Review("Emma Wilson", 4, "Good portion sizes and reasonable prices. Nice ambiance."),
-    Review("Alex Brown", 5, "The chef's special was outstanding! Highly recommend."),
-    Review("Lisa Chen", 3, "Food was okay but could use more seasoning."),
-    Review("David Kim", 4, "Fresh ingredients and great presentation."),
-    Review("Maria Garcia", 5, "Excellent service! The waiter was very attentive."),
-    Review("Tom Anderson", 4, "Nice variety of options. The desserts are must-try!")
-)

@@ -4,6 +4,7 @@ import com.example.projet_tdm.R
 
 data class Restaurant(
     val id:Int,
+    val restaurant_id :String,
     val name:String,
     val imgUrl:Int,
     val description:String,
@@ -40,6 +41,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 0,
+            restaurant_id ="67748c891540f24d3cf3b757",
             name = "Rose Garden Restaurant",
             imgUrl = R.drawable.restaurant_image,
             description = "Burger - Chicken - Wings",
@@ -70,6 +72,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 2,
+            "67748ca31540f24d3cf3b760",
             name = "El Djenina",
             imgUrl = R.drawable.eldjenina,
             description = "Restaurant proposant une cuisine algérienne traditionnelle et authentique.",
@@ -98,6 +101,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 3,
+            "",
             name = "Sushi Sensei",
             imgUrl = R.drawable.samurai_sushi,
             description = "Restaurant de sushi offrant des plats japonais frais et savoureux.",
@@ -126,6 +130,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 4,
+            "",
             name = "Taj Mahal",
             imgUrl = R.drawable.taj_mahal,
             description = "Cuisine indienne authentique avec un large choix de curry et naan.",
@@ -154,6 +159,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 5,
+            "",
             name = "Machaoui El Boustane",
             imgUrl = R.drawable.beyrouth_lounge,
             description = "Une ambiance libanaise authentique avec des plats traditionnels.",
@@ -182,6 +188,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 6,
+            "",
             name = "El Dey",
             imgUrl = R.drawable.eldey,
             description = "Restaurant algérien authentique proposant des plats traditionnels.",
@@ -210,6 +217,8 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 7,
+            "",
+
             name = "Sakura Sushi",
             imgUrl = R.drawable.sakura_sushi,
             description = "Un restaurant japonais spécialisé dans les sushis et ramen.",
@@ -237,6 +246,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 8,
+            "",
             name = "AL Baik",
             imgUrl = R.drawable.damascus_delights,
             description = "Cuisine syrienne, offrant des plats typiques comme le shawarma.",
@@ -264,6 +274,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 9,
+            "",
             name = "La Casa del Food",
             imgUrl = R.drawable.la_casa_italienne,
             description = "Un restaurant italien réputé pour ses pizzas et pâtes fraîches.",
@@ -292,6 +303,7 @@ fun getData():List<Restaurant> {
     data.add(
         Restaurant(
             id = 1,
+            "",
             name = "Le Patio",
             imgUrl = R.drawable.lepatio,
             description = "Un restaurant chic au cœur d'Alger avec une cuisine méditerranéenne raffinée.",

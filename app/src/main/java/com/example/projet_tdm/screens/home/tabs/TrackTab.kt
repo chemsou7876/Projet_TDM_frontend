@@ -26,6 +26,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Star
@@ -40,10 +41,15 @@ import com.example.projet_tdm.models.PannierSingleton
 import kotlinx.coroutines.delay
 import com.example.projet_tdm.R
 import com.example.projet_tdm.services.NotificationService
+import com.example.projet_tdm.services.RetrofitClient
+import com.example.projet_tdm.services.ReviewRequest
+import com.example.projet_tdm.services.ReviewResponse
+import com.example.projet_tdm.services.UserSession
 import com.example.projet_tdm.services.createNotificationChannel
 import com.example.projet_tdm.services.sendNotification
 import com.example.projet_tdm.ui.theme.Sen
 import kotlinx.coroutines.launch
+import retrofit2.Call
 
 
 val notificationChannelId = "order_status_channel"
@@ -66,6 +72,7 @@ fun TrackTab(
         "Your Order is here!" to false
     )
 ) {
+
     val driverNumber = "0782683513"
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
@@ -380,7 +387,36 @@ fun RatingDialog(
 
                 // Submit Button
                 Button(
-                    onClick = { onSubmit(rating, feedback) },
+                    onClick = {
+                        val reviewRequest = ReviewRequest(
+                            userId = UserSession.userId, // Remplacez par l'ID de l'utilisateur actuel
+                            restaurantId = "67748c891540f24d3cf3b757", // Remplacez par l'ID du restaurant
+                            rating = rating, // Note donnée par l'utilisateur
+                            comment = feedback // Commentaire de l'utilisateur
+                        )
+                        RetrofitClient.instance.submitReview(reviewRequest).enqueue(
+                            object : retrofit2.Callback<ReviewResponse> {
+                                override fun onResponse(
+                                    call: Call<ReviewResponse>,
+                                    response: retrofit2.Response<ReviewResponse>
+                                ) {
+                                    if (response.isSuccessful) {
+                                        // Afficher un message de succès
+                                        //  Toast.makeText(context, "Review submitted successfully!", Toast.LENGTH_SHORT).show()
+                                        // Fermer le dialogue après la soumission
+                                        onDismiss()
+                                    } else {
+                                        // Afficher un message d'erreur
+                                        //   Toast.makeText(context, "Failed to submit review: ${response.message()}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<ReviewResponse>, t: Throwable) {
+                                    // Afficher un message d'erreur en cas d'échec de la requête
+                                    //   Toast.makeText(context, "Error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                              },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(62.dp),
